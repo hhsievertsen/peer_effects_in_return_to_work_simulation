@@ -100,8 +100,37 @@ DGP_fast <- function(n = 70000, n_districts = 500) {
   dt[, x_income_d1 := (sum_income - x_income) / (n_group - 1)]
   # Recentered IV 
   dt[, x_schooling_m1_recentered := x_schooling_m1-x_schooling_d1]
+  # Statically model labor supply
+      # Initial (baseline) labor supply without peer effect
+      dt[, lsupply_base := pmin(40, pmax(0, 
+                                20 +         # base level
+                                0.5 * U +     # unobserved factor
+                                0.3 * gm_lsupply +  # grandmother's influence
+                                rnorm(.N, 0, 5)  # noise
+      ))]
+      
+      # Leave-one-out peer effect within mother group
+      dt[, `:=`(
+        sum_lsupply = sum(lsupply_base),
+        n_group = .N
+      ), by = id_mother_group]
+      
+      dt[, x_lsupply_peers := (sum_lsupply - lsupply_base) / (n_group - 1)]
+       # Leave-one-out peer effect within district
+      dt[, `:=`(
+        sum_lsupply = sum(lsupply_base),
+        n_group = .N
+      ), by = id_district]
+      
+      dt[, x_lsupply_peers_d := (sum_lsupply - lsupply_base) / (n_group - 1)]
+      dt[, x_lsupply_peers_rc := x_lsupply_peers-x_lsupply_peers_d]
+      # Final labor supply including peer effect
+      dt[, y_lsupply := pmin(40, pmax(0,
+                             lsupply_base +
+                             0.2 * x_lsupply_peers  # peer effect coefficient
+      ))]
   # Keep only relevant columns
-  dt[, .SD, .SDcols = patterns("^id_", "^x_", "^gm_")]
+  dt[, .SD, .SDcols = patterns("^id_", "^x_", "^gm_","^y_")]
   return(dt)
 }
 
@@ -117,11 +146,11 @@ DGP_fast <- function(n = 70000, n_districts = 500) {
 
 df<-DGP_fast()
 setorder(df, id_district, x_parity, x_dob, x_age)
-head(df[, .SD, .SDcols = c("id_district","x_dob","x_age","x_parity","id_mother_group")],n=20)
+head(df[, .SD, .SDcols = c("id_district","x_dob","x_age","x_parity","id_mother_group","y_lsupply")],n=20)
 
 ```
 
-# 3 The conventional balancing check!
+# 3 The conventional balancing check
 
 So now let us see what happens when we test for balancing.
 
@@ -166,7 +195,7 @@ And we then compare that to a placebo regression (where we added a random variab
 #| include: true
 #| code-fold: true
 #| warning: false
-#| cache: true
+
 
 for (i in 1:I){
     # Generate DGP
@@ -263,3 +292,68 @@ guides(color = guide_legend(nrow = 2))
 ```
 
 
+
+# 4 The outcome
+
+```{r}
+#| label: prepare-iterations-outc
+#| include: true
+#| code-fold: true
+#| warning: false
+
+#Iterations
+I=1000
+# Dataset
+df_results<-data.frame(i=1:I,bias=NA,type="1 Conventional")
+df_results_recenter<-data.frame(i=1:I,bias=NA,type="2 Recentered")
+
+```
+
+
+```{r}
+#| label: outcome-sim
+#| include: true
+#| code-fold: true
+#| warning: false
+
+ mydata<-DGP_fast()
+
+for (i in 1:I){
+      # Generate DGP
+    mydata<-DGP_fast()
+    # 1 conventional reg
+       res<-feols(y_lsupply~x_lsupply_peers+x_schooling+x_schooling_m1+x_income+x_income_m1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["x_lsupply_peers", "Estimate"]-0.2
+      df_results$bias[i] <- bias
+   # 2 recenter
+       res<-feols(y_lsupply~x_lsupply_peers_rc+x_schooling+x_schooling_m1+x_income+x_income_m1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["x_lsupply_peers_rc", "Estimate"]-0.2
+      df_results_recenter$bias[i] <- bias
+
+
+    # Print
+        if (i%%50==0){
+               cat(paste(i,"\n"))
+        }
+        else{
+               cat("*")
+        }
+}
+```
+
+Show chart
+```{r}
+#| label: chart-bias
+#| include: true
+#| code-fold: true
+#| warning: false
+#| 
+df<-rbind(df_results,df_results_recenter)
+
+
+ggplot(df,aes(x=bias,group=type,fill=type))+
+    geom_density(alpha=0.2)+
+  scale_fill_viridis_d() +
+  theme_minimal()+labs(color=" ",fill=" ")+
+  theme(legend.position = "top")+ geom_vline(xintercept=0)
+```

@@ -185,10 +185,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  dt[, x_income_d1 <span class="sc">:</span><span class="er">=</span> (sum_income <span class="sc">-</span> x_income) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
 <span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recentered IV </span></span>
 <span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  dt[, x_schooling_m1_recentered <span class="sc">:</span><span class="er">=</span> x_schooling_m1<span class="sc">-</span>x_schooling_d1]</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Keep only relevant columns</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>  dt[, .SD, .SDcols <span class="ot">=</span> <span class="fu">patterns</span>(<span class="st">"^id_"</span>, <span class="st">"^x_"</span>, <span class="st">"^gm_"</span>)]</span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(dt)</span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Statically model labor supply</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Initial (baseline) labor supply without peer effect</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>      dt[, lsupply_base <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>, </span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                                <span class="dv">20</span> <span class="sc">+</span>         <span class="co"># base level</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">0.5</span> <span class="sc">*</span> U <span class="sc">+</span>     <span class="co"># unobserved factor</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">0.3</span> <span class="sc">*</span> gm_lsupply <span class="sc">+</span>  <span class="co"># grandmother's influence</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">rnorm</span>(.N, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># noise</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>      ))]</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Leave-one-out peer effect within mother group</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>      dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_lsupply =</span> <span class="fu">sum</span>(lsupply_base),</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_mother_group]</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers <span class="sc">:</span><span class="er">=</span> (sum_lsupply <span class="sc">-</span> lsupply_base) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>       <span class="co"># Leave-one-out peer effect within district</span></span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>      dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_lsupply =</span> <span class="fu">sum</span>(lsupply_base),</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_district]</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers_d <span class="sc">:</span><span class="er">=</span> (sum_lsupply <span class="sc">-</span> lsupply_base) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers_rc <span class="sc">:</span><span class="er">=</span> x_lsupply_peers<span class="sc">-</span>x_lsupply_peers_d]</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Final labor supply including peer effect</span></span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>      dt[, y_lsupply <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>,</span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                             lsupply_base <span class="sc">+</span></span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                             <span class="fl">0.2</span> <span class="sc">*</span> x_lsupply_peers  <span class="co"># peer effect coefficient</span></span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>      ))]</span>
+<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Keep only relevant columns</span></span>
+<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  dt[, .SD, .SDcols <span class="ot">=</span> <span class="fu">patterns</span>(<span class="st">"^id_"</span>, <span class="st">"^x_"</span>, <span class="st">"^gm_"</span>,<span class="st">"^y_"</span>)]</span>
+<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(dt)</span>
+<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="show-data" class="level4">
@@ -198,38 +227,38 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setorder</span>(df, id_district, x_parity, x_dob, x_age)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df[, .SD, <span class="at">.SDcols =</span> <span class="fu">c</span>(<span class="st">"id_district"</span>,<span class="st">"x_dob"</span>,<span class="st">"x_age"</span>,<span class="st">"x_parity"</span>,<span class="st">"id_mother_group"</span>)],<span class="at">n=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df[, .SD, <span class="at">.SDcols =</span> <span class="fu">c</span>(<span class="st">"id_district"</span>,<span class="st">"x_dob"</span>,<span class="st">"x_age"</span>,<span class="st">"x_parity"</span>,<span class="st">"id_mother_group"</span>,<span class="st">"y_lsupply"</span>)],<span class="at">n=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>    id_district      x_dob x_age x_parity id_mother_group
-          &lt;int&gt;     &lt;Date&gt; &lt;num&gt;    &lt;int&gt;          &lt;char&gt;
- 1:           1 2010-01-25    35        1             1_0
- 2:           1 2010-09-06    22        1             1_0
- 3:           1 2010-10-23    33        1             1_0
- 4:           1 2010-10-25    28        1             1_0
- 5:           1 2010-11-18    23        1             1_0
- 6:           1 2011-01-17    33        1             1_1
- 7:           1 2011-01-31    27        1             1_1
- 8:           1 2011-04-07    27        1             1_1
- 9:           1 2011-05-05    20        1             1_1
-10:           1 2011-05-08    31        1             1_1
-11:           1 2011-05-09    37        1             1_2
-12:           1 2011-05-25    34        1             1_2
-13:           1 2011-07-24    21        1             1_2
-14:           1 2011-08-14    37        1             1_2
-15:           1 2011-08-20    40        1             1_2
-16:           1 2011-08-24    32        1             1_3
-17:           1 2011-09-09    38        1             1_3
-18:           1 2011-09-30    35        1             1_3
-19:           1 2011-10-11    28        1             1_3
-20:           1 2011-11-27    21        1             1_3
-    id_district      x_dob x_age x_parity id_mother_group</code></pre>
+<pre><code>    id_district      x_dob x_age x_parity id_mother_group y_lsupply
+          &lt;int&gt;     &lt;Date&gt; &lt;num&gt;    &lt;int&gt;          &lt;char&gt;     &lt;num&gt;
+ 1:           1 2010-01-25    35        1             1_0  27.89592
+ 2:           1 2010-09-06    22        1             1_0  30.60319
+ 3:           1 2010-10-23    33        1             1_0  34.54620
+ 4:           1 2010-10-25    28        1             1_0  32.44216
+ 5:           1 2010-11-18    23        1             1_0  36.48656
+ 6:           1 2011-01-17    33        1             1_1  29.77068
+ 7:           1 2011-01-31    27        1             1_1  26.18926
+ 8:           1 2011-04-07    27        1             1_1  24.19758
+ 9:           1 2011-05-05    20        1             1_1  23.40022
+10:           1 2011-05-08    31        1             1_1  28.38030
+11:           1 2011-05-09    37        1             1_2  29.33789
+12:           1 2011-05-25    34        1             1_2  32.01883
+13:           1 2011-07-24    21        1             1_2  34.19439
+14:           1 2011-08-14    37        1             1_2  31.01366
+15:           1 2011-08-20    40        1             1_2  35.52345
+16:           1 2011-08-24    32        1             1_3  35.27017
+17:           1 2011-09-09    38        1             1_3  37.74765
+18:           1 2011-09-30    35        1             1_3  26.95258
+19:           1 2011-10-11    28        1             1_3  35.83163
+20:           1 2011-11-27    21        1             1_3  34.33218
+    id_district      x_dob x_age x_parity id_mother_group y_lsupply</code></pre>
 </div>
 </div>
 </section>
 </section>
 <section id="the-conventional-balancing-check" class="level1">
-<h1>3 The conventional balancing check!</h1>
+<h1>3 The conventional balancing check</h1>
 <p>So now let us see what happens when we test for balancing.</p>
 <section id="preparation-1" class="level4">
 <h4 class="anchored" data-anchor-id="preparation-1">Preparation</h4>
@@ -376,6 +405,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
+</section>
+<section id="the-outcome" class="level1">
+<h1>4 The outcome</h1>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Iterations</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>I<span class="ot">=</span><span class="dv">1000</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataset</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df_results<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">bias=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"1 Conventional"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df_results_recenter<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">bias=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"2 Recentered"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a> mydata<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Generate DGP</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    mydata<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1 conventional reg</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       res<span class="ot">&lt;-</span><span class="fu">feols</span>(y_lsupply<span class="sc">~</span>x_lsupply_peers<span class="sc">+</span>x_schooling<span class="sc">+</span>x_schooling_m1<span class="sc">+</span>x_income<span class="sc">+</span>x_income_m1<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       bias<span class="ot">&lt;-</span><span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_lsupply_peers"</span>, <span class="st">"Estimate"</span>]<span class="sc">-</span><span class="fl">0.2</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      df_results<span class="sc">$</span>bias[i] <span class="ot">&lt;-</span> bias</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>   <span class="co"># 2 recenter</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>       res<span class="ot">&lt;-</span><span class="fu">feols</span>(y_lsupply<span class="sc">~</span>x_lsupply_peers_rc<span class="sc">+</span>x_schooling<span class="sc">+</span>x_schooling_m1<span class="sc">+</span>x_income<span class="sc">+</span>x_income_m1<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       bias<span class="ot">&lt;-</span><span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_lsupply_peers_rc"</span>, <span class="st">"Estimate"</span>]<span class="sc">-</span><span class="fl">0.2</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      df_results_recenter<span class="sc">$</span>bias[i] <span class="ot">&lt;-</span> bias</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="fu">paste</span>(i,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="st">"*"</span>)</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>*************************************************50 
+*************************************************100 
+*************************************************150 
+*************************************************200 
+*************************************************250 
+*************************************************300 
+*************************************************350 
+*************************************************400 
+*************************************************450 
+*************************************************500 
+*************************************************550 
+*************************************************600 
+*************************************************650 
+*************************************************700 
+*************************************************750 
+*************************************************800 
+*************************************************850 
+*************************************************900 
+*************************************************950 
+*************************************************1000 </code></pre>
+</div>
+</div>
+<p>Show chart</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">rbind</span>(df_results,df_results_recenter)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df,<span class="fu">aes</span>(<span class="at">x=</span>bias,<span class="at">group=</span>type,<span class="at">fill=</span>type))<span class="sc">+</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha=</span><span class="fl">0.2</span>)<span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>() <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">color=</span><span class="st">" "</span>,<span class="at">fill=</span><span class="st">" "</span>)<span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)<span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/chart-bias-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
 </section>
 
 </main>
