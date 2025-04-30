@@ -3,3 +3,4 @@ dplyr
 lubridate
 fixest
 data.table
+modelsummary

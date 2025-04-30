@@ -38,8 +38,8 @@ library(dplyr)       # Data manipulation tools
 library(lubridate)   # Date manipulation tools
 library(fixest)      # Estimation
 library(data.table)  # Data manipulation tools
-
-
+library(modelsummary)
+library(lmtest)
 ```
 
 
@@ -56,82 +56,78 @@ Note that the assignment is only strict based on district, but not based on moth
 #| warning: false
 
 DGP_fast <- function(n = 70000, n_districts = 500) {
-  # District identifier
-  id_district <- sample(1:n_districts, n, replace = TRUE)
-  # District unobserved effect
-  district_effect <- rnorm(n_districts, mean = 0, sd = 1)
-  # Individual unobserved effect
-  U <- district_effect[id_district] + rnorm(n)
-  # Covariates
-  x_age <- round(runif(n, 18, 40))
-  x_parity <- sample(1:2, n, replace = TRUE)
-  x_schooling <- round(9 + 0.2 * x_age + 0.8 * U + rnorm(n))
-  x_income <- round(200000 + 5000 * x_schooling + 10000 * U + rnorm(n, 0, 20000))
-  gm_lsupply <- pmax(0, 20 + 0.5 * U + rnorm(n, 0, 5))
-  x_dob <- sample(seq(as.Date("2010-01-01"), as.Date("2017-12-31"), by = "day"), n, replace = TRUE)
-  # Create data frame
-  dt <- data.table(id_mother = 1:n, id_district, x_age, x_parity,
-                   x_schooling, x_income, gm_lsupply, x_dob)
-  # Assign mother groups
-  setorder(dt, id_district, x_parity, x_dob, x_age)
-  dt[, count := 1:.N, by = id_district]
-  dt[, group_id := floor((count - 1) / 5)]
-  dt[, id_mother_group := paste(id_district, group_id, sep = "_")]
-  # Create fixed effects
-  dt[, x_quarter := lubridate::quarter(x_dob, with_year = TRUE)]
-  dt[, x_month := lubridate::month(x_dob)]
-  dt[, x_year := lubridate::year(x_dob)]
-  dt[, x_young := as.integer(x_age < 30)]
-  # Leave-one-out calculations
-  dt[, `:=`(
-    sum_schooling = sum(x_schooling),
-    sum_income = sum(x_income),
-    n_group = .N
-  ), by = id_mother_group]
-  dt[, x_schooling_m1 := (sum_schooling - x_schooling) / (n_group - 1)]
-  dt[, x_income_m1 := (sum_income - x_income) / (n_group - 1)]
-  # Leave-one-out calculations, district, year and month level
-  dt[, `:=`(
-    sum_schooling = sum(x_schooling),
-    sum_income = sum(x_income),
-    n_group = .N
-  ), by = id_district]
-  dt[, x_schooling_d1 := (sum_schooling - x_schooling) / (n_group - 1)]
-  dt[, x_income_d1 := (sum_income - x_income) / (n_group - 1)]
-  # Recentered IV 
-  dt[, x_schooling_m1_recentered := x_schooling_m1-x_schooling_d1]
-  # Statically model labor supply
-      # Initial (baseline) labor supply without peer effect
-      dt[, lsupply_base := pmin(40, pmax(0, 
-                                20 +         # base level
-                                0.5 * U +     # unobserved factor
-                                0.3 * gm_lsupply +  # grandmother's influence
-                                rnorm(.N, 0, 5)  # noise
-      ))]
-      
-      # Leave-one-out peer effect within mother group
-      dt[, `:=`(
-        sum_lsupply = sum(lsupply_base),
-        n_group = .N
-      ), by = id_mother_group]
-      
-      dt[, x_lsupply_peers := (sum_lsupply - lsupply_base) / (n_group - 1)]
-       # Leave-one-out peer effect within district
-      dt[, `:=`(
-        sum_lsupply = sum(lsupply_base),
-        n_group = .N
-      ), by = id_district]
-      
-      dt[, x_lsupply_peers_d := (sum_lsupply - lsupply_base) / (n_group - 1)]
-      dt[, x_lsupply_peers_rc := x_lsupply_peers-x_lsupply_peers_d]
-      # Final labor supply including peer effect
-      dt[, y_lsupply := pmin(40, pmax(0,
-                             lsupply_base +
-                             0.2 * x_lsupply_peers  # peer effect coefficient
-      ))]
-  # Keep only relevant columns
-  dt[, .SD, .SDcols = patterns("^id_", "^x_", "^gm_","^y_")]
-  return(dt)
+    
+    # District identifier
+    id_district <- sample(1:n_districts, n, replace = TRUE)
+    # District unobserved effect
+    district_effect <- rnorm(n_districts, mean = 0, sd = 1)
+    # Individual unobserved effect
+    U <- district_effect[id_district] + rnorm(n)
+    # Covariates, note that parity and dob are unrelated to u, age, education, income, gm labour supply are not 
+    x_age <- round(18 + 10 * runif(n) + 2 * U + rnorm(n))  # now depends on U
+    x_age <- pmax(pmin(x_age, 40), 18)  # keep age between 18 and 40
+    x_parity <- sample(1:2, n, replace = TRUE)
+    x_schooling <- round(9 + 0.2 * x_age + 0.8 * U + rnorm(n))
+    x_income <- round(200000 + 5000 * x_schooling + 10000 * U + rnorm(n, 0, 20000))
+    x_gm_lsupply <- pmax(0, 20 + 0.5 * U + rnorm(n, 0, 5))
+    x_dob <- sample(seq(as.Date("2010-01-01"), as.Date("2017-12-31"), by = "day"), n, replace = TRUE)
+    # Create data frame
+    dt <- data.table(id_mother = 1:n, id_district, x_age, x_parity,
+                     x_schooling, x_income, x_gm_lsupply, x_dob)
+    # Assign mother groups
+    setorder(dt, id_district, x_dob, x_age,x_parity)
+    dt[, order_original := .I , by = id_district]
+    # Add small random noise to row numbers
+    dt[, order_noisy := .I + rnorm(.N, mean = 0, sd = 1)]
+    # Sort by the noisy key
+    setorder(dt, id_district,order_noisy)
+    dt[, order_noisy := .I , by = id_district]
+    # Assign groups
+    dt[, count := 1:.N, by = id_district]
+    dt[, group_id := floor((count - 1) / 5)]
+    dt[, id_mother_group := paste(id_district, group_id, sep = "_")]
+    
+    # Create fixed effects
+    dt[, x_quarter := lubridate::quarter(x_dob, with_year = TRUE)]
+    dt[, x_month := lubridate::month(x_dob)]
+    dt[, x_year := lubridate::year(x_dob)]
+    dt[, x_young := as.integer(x_age < 30)]
+    dt[, x_age5 := floor(x_age/5)*5]
+    # Leave-one-out variables
+    dt[, `:=`(
+      sum_schooling = sum(x_schooling),
+      sum_income = sum(x_income),
+      sum_gm=sum(x_gm_lsupply),
+      n_group = .N
+    ), by = id_mother_group]
+    dt[, x_schooling_g := (sum_schooling - x_schooling) / (n_group - 1)]
+    dt[, x_income_g := (sum_income - x_income) / (n_group - 1)]
+    dt[, x_gm_lsupply_g := (sum_gm - x_gm_lsupply) / (n_group - 1)]
+    
+    # Create labor supply (our main outcome)
+    # Initial (baseline) labor supply without peer effect
+    dt[, lsupply_base := pmin(40, pmax(0, 
+                                       20 +         # base level
+                                         0.5 * U +     # unobserved factor
+                                         0.3 * x_gm_lsupply +  # grandmother's influence
+                                         rnorm(.N, 0, 5)  # noise
+    ))]
+    # Leave-one-out peer effect within mother group
+    dt[, `:=`(
+      sum_lsupply = sum(lsupply_base),
+      n_group = .N
+    ), by = id_mother_group]
+    
+    dt[, x_lsupply_g := (sum_lsupply - lsupply_base) / (n_group - 1)]
+    # Final labor supply including peer effect
+    dt[, y_lsupply := pmin(40, pmax(0,
+                                    lsupply_base +
+                                      0.2 * x_lsupply_g  # peer effect coefficient
+    ))]
+    
+    # Keep only relevant columns
+    dt<-dt[, .SD, .SDcols = grep("^id_|^x_|^gm_|^y_", names(dt), value = TRUE)]
+      return(dt)
 }
 
 ```
@@ -146,8 +142,217 @@ DGP_fast <- function(n = 70000, n_districts = 500) {
 
 df<-DGP_fast()
 setorder(df, id_district, x_parity, x_dob, x_age)
-head(df[, .SD, .SDcols = c("id_district","x_dob","x_age","x_parity","id_mother_group","y_lsupply")],n=20)
+head(df[, .SD, .SDcols = c("id_district","id_mother_group","y_lsupply")],n=11)
 
+
+```
+
+# 3 Check that this looks like our real data
+
+## 3.1 Balance checks
+
+### 3.1.1 Approach 1
+
+```{r}
+#| label: balance-one regressions
+#| include: true
+#| code-fold: true
+#| warning: false
+
+summary(feols(x_gm_lsupply~x_gm_lsupply_g|id_district+x_age5,data=df))
+
+```
+
+
+Okay this looks similar 
+
+Let us try to randomize groups and recalculate and check distribution
+
+```{r}
+#| label: balance-one regressions
+#| include: true
+#| code-fold: true
+#| warning: false
+
+#Iterations
+I=10000
+# Dataset
+df_sim<-data.frame(i=1:I,beta=NA,type="Raw")
+
+for (i in 1:I){
+  # random order
+  df[, random :=rnorm(.N, mean = 0, sd = 1)]
+  # reorder
+  setorder(df, id_district, x_age5,random)
+  # Assign groups
+  df[, count := 1:.N, by = id_district]
+  df[, group_id := floor((count - 1) / 5)]
+  df[, id_mother_group_new := paste(id_district, group_id, sep = "_")]
+  # Recalculate leave one out mean
+   df[, `:=`(
+      sum_gm=sum(x_gm_lsupply),
+      n_group = .N
+    ), by = id_mother_group_new]
+    df[, x_gm_lsupply_gshuffle := (sum_gm - x_gm_lsupply) / (n_group - 1)]
+    
+  # Save estimate
+    res<-feols(x_gm_lsupply~x_gm_lsupply_gshuffle|id_district+x_age5,data=df,notes=FALSE)
+    # Extract coefficient
+    beta <- summary(res)$coeftable["x_gm_lsupply_gshuffle", "Estimate"]
+    # Store beta-value in results dataset
+    df_sim$beta[i] <- beta
+    
+      # Print
+        if (i%%50==0){
+               cat(paste(i,"\n"))
+        }
+        else{
+               cat("*")
+        }
+    
+}
+
+```
+
+
+Add actual to chart
+
+
+```{r}
+#| label: balance-plot
+#| include: true
+#| code-fold: true
+#| warning: false
+
+
+# Store main
+main<-feols(x_gm_lsupply~x_gm_lsupply_g|id_district+x_age5,data=df)
+beta <- summary(main)$coeftable["x_gm_lsupply_g", "Estimate"]
+
+
+
+ggplot(df_sim,aes(x=beta))+geom_histogram(color="black",fill="white") +
+  theme_minimal()+geom_vline(xintercept = beta)
+```
+
+### 3.1.2 Approach 2
+
+
+```{r}
+#| label: reg on cells
+
+
+# datafarme to save results
+df_results<-data.table(id_district=rep(unique(df$id_district),times=4),
+                       p=NA,
+                       var=rep(c("x_schooling","x_income","x_age", "x_gm_lsupply", "x_parity"),each=length(rep(unique(df$id_district))))
+                               )
+# Loop over variables
+for (v in c("x_schooling","x_income","x_age", "x_gm_lsupply", "x_parity")){
+  # Loop over all districts:
+  for (i in unique(df$id_district)){
+    # select sample
+    filtered_df <- df[df$id_district== i, ]
+     
+    # Model without fixed effects
+    mod1 <- feols(as.formula(paste(v, "~ 1")), data = filtered_df)
+    
+    # Model with fixed effects
+    mod2 <- feols(as.formula(paste(v, "~ 1 | id_mother_group_new")), data = filtered_df)
+    
+    # Compare models
+    ll1 <- logLik(mod1)
+    ll2 <- logLik(mod2)
+    lr_stat <- 2 * (as.numeric(ll2) - as.numeric(ll1))
+    df_fe <- length(unique(filtered_df$id_mother_group_new)) - 1
+    pval <- pchisq(lr_stat, df = df_fe, lower.tail = FALSE)
+    # Store results
+    df_results$p[df_results$id_district == i & df_results$var == v] <- pval
+  }
+  print(v)
+}
+
+```
+
+Now create plot
+
+```{r}
+
+# Sort by var and p
+setorder(df_results, var, p)
+
+# Compute relative rank within each var group
+df_results[, relrank := rank(p, ties.method = "first") / .N, by = var]
+
+
+# Plot
+library(ggplot2)
+ggplot(df_results, aes(x = relrank, y = p, color = var)) +
+  geom_line() +
+  labs(x = "Relative Rank", y = "p-value", color = "Variable") +
+  theme_minimal()
+```
+
+Now within age and district cells
+
+
+```{r}
+df[, group := .GRP, by = .(id_district,x_age5)]
+
+# datafarme to save results
+df_results<-data.table(group=rep(unique(df$group),times=4),
+                       p=NA,
+                       var=rep(c("x_schooling","x_income","x_age", "x_gm_lsupply", "x_parity"),each=length(rep(unique(df$group))))
+                               )
+# Loop over variables
+for (v in c("x_schooling","x_income","x_age", "x_gm_lsupply", "x_parity")){
+  # Loop over all districts:
+  for (i in unique(df$group)){
+    # select sample
+    filtered_df <- df[df$group== i, ]
+    
+    # Skip if the variable is constant or NA
+    y <- filtered_df[[v]]
+    if (length(unique(y[!is.na(y)])) <= 1) next  # Skip constant or all-NA
+    
+    
+    # Model without fixed effects
+    mod1 <- feols(as.formula(paste(v, "~ 1")), data = filtered_df)
+    
+    # Model with fixed effects
+    mod2 <- feols(as.formula(paste(v, "~ 1 | id_mother_group_new")), data = filtered_df)
+    
+    # Compare models
+    ll1 <- logLik(mod1)
+    ll2 <- logLik(mod2)
+    lr_stat <- 2 * (as.numeric(ll2) - as.numeric(ll1))
+    df_fe <- length(unique(filtered_df$id_mother_group_new)) - 1
+    pval <- pchisq(lr_stat, df = df_fe, lower.tail = FALSE)
+    # Store results
+    df_results$p[df_results$group == i & df_results$var == v] <- pval
+  }
+  print(v)
+}
+
+```
+
+Now create plot
+
+```{r}
+
+# Sort by var and p
+setorder(df_results, var, p)
+
+# Compute relative rank within each var group
+df_results[, relrank := rank(p, ties.method = "first") / .N, by = var]
+
+
+# Plot
+library(ggplot2)
+ggplot(df_results, aes(x = relrank, y = p, color = var)) +
+  geom_line() +
+  labs(x = "Relative Rank", y = "p-value", color = "Variable") +
+  theme_minimal()
 ```
 
 # 3 The conventional balancing check
@@ -195,7 +400,7 @@ And we then compare that to a placebo regression (where we added a random variab
 #| include: true
 #| code-fold: true
 #| warning: false
-
+#| cache: true  
 
 for (i in 1:I){
     # Generate DGP
@@ -203,33 +408,34 @@ for (i in 1:I){
     # Add random variable
     mydata$x=rnorm(n=nrow(mydata),0,1)
     # 1 Conventional
-        res<-feols(x_schooling~x_schooling_m1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+        res<-feols(x_schooling~x_schooling_g|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
         # Extract p-value from F-test
-        p_value <- summary(res)$coeftable["x_schooling_m1", "Pr(>|t|)"]
+        p_value <- summary(res)$coeftable["x_schooling_g", "Pr(>|t|)"]
         # Store p-value in results dataset
         df_results$p[i] <- p_value
     # 2 Control for pool level
-        res<-feols(x_schooling~x_schooling_m1+x_schooling_d1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+        res<-feols(x_schooling~x_schooling_g+x_schooling_d|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
         # Extract p-value from F-test
-        p_value <- summary(res)$coeftable["x_schooling_m1", "Pr(>|t|)"]
+        p_value <- summary(res)$coeftable["x_schooling_g", "Pr(>|t|)"]
         # Store p-value in results dataset
         df_results_pool$p[i] <- p_value
-     #  3 Control for pool level, flexible controls 
-        res<-feols(x_schooling~x_schooling_m1+x_age+x_parity|id_district+x_year+x_month,data=mydata,notes=FALSE)
+     #  3 Flexible controls 
+        res<-feols(x_schooling~x_schooling_g+x_age+x_parity|id_district+x_year+x_month,data=mydata,notes=FALSE)
         # Extract p-value from F-test
-        p_value <- summary(res)$coeftable["x_schooling_m1", "Pr(>|t|)"]
+        p_value <- summary(res)$coeftable["x_schooling_g", "Pr(>|t|)"]
         # Store p-value in results dataset
         df_results_controls$p[i] <- p_value
     #  4 Control for pool level, flexible controls
-        res<-feols(x_schooling~x_schooling_m1+x_schooling_d1+x_age+x_parity|id_district+x_year+x_month,data=mydata,notes=FALSE)
+        res<-feols(x_schooling~x_schooling_g+x_schooling_d+x_age+x_parity|id_district+x_year+x_month,data=mydata,notes=FALSE)
         # Extract p-value from F-test
-        p_value <- summary(res)$coeftable["x_schooling_m1", "Pr(>|t|)"]
+        p_value <- summary(res)$coeftable["x_schooling_g", "Pr(>|t|)"]
         # Store p-value in results dataset
         df_results_controls_pool$p[i] <- p_value
     #  5 Recentered IV
-        res<-feols(x_schooling~x_schooling_m1_recentered|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+        mydata$x_schooling_g_recentered<-mydata$x_schooling_g-mydata$x_schooling_d
+        res<-feols(x_schooling~x_schooling_g_recentered|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
         # Extract p-value from F-test
-        p_value <- summary(res)$coeftable["x_schooling_m1_recentered", "Pr(>|t|)"]
+        p_value <- summary(res)$coeftable["x_schooling_g_recentered", "Pr(>|t|)"]
         # Store p-value in results dataset
         df_results_recenter$p[i] <- p_value
     #  6 Placebo
@@ -259,6 +465,7 @@ Now we create charts of p values. They should be uniformly distributed. We start
 #| include: true
 #| code-fold: true
 #| warning: false
+#| cache: true
 
 df<-rbind(df_results,df_results_placebo,df_results_controls,df_results_pool,df_results_controls_pool,df_results_recenter)
 
@@ -278,7 +485,7 @@ It might be easier to read in a plot of CDFS
 #| include: true
 #| code-fold: true
 #| warning: false
-#| 
+
 df<-rbind(df_results,df_results_placebo,df_results_controls,df_results_pool,df_results_controls_pool,df_results_recenter)%>%
   arrange(type,p)%>%
   group_by(type)%>%mutate(rank=row_number()/n())
@@ -315,20 +522,170 @@ df_results_recenter<-data.frame(i=1:I,bias=NA,type="2 Recentered")
 #| include: true
 #| code-fold: true
 #| warning: false
-
- mydata<-DGP_fast()
+#| cache: true
 
 for (i in 1:I){
       # Generate DGP
     mydata<-DGP_fast()
     # 1 conventional reg
-       res<-feols(y_lsupply~x_lsupply_peers+x_schooling+x_schooling_m1+x_income+x_income_m1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
-       bias<-summary(res)$coeftable["x_lsupply_peers", "Estimate"]-0.2
-      df_results$bias[i] <- bias
+       res<-feols(y_lsupply~x_lsupply_peers_g|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["x_lsupply_peers_g", "Estimate"]
+      df_results$bias[i] <- bias-0.2
    # 2 recenter
-       res<-feols(y_lsupply~x_lsupply_peers_rc+x_schooling+x_schooling_m1+x_income+x_income_m1|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
-       bias<-summary(res)$coeftable["x_lsupply_peers_rc", "Estimate"]-0.2
-      df_results_recenter$bias[i] <- bias
+      mydata$z=mydata$x_lsupply_peers_g-mydata$x_lsupply_peers_d
+       res<-feols(y_lsupply~z|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["z", "Estimate"]
+      df_results_recenter$bias[i] <- bias-0.2
+    # Print
+        if (i%%50==0){
+               cat(paste(i,"\n"))
+        }
+        else{
+               cat("*")
+        }
+}
+df<-rbind(df_results,df_results_recenter)
+datasummary_balance(bias~type,fmt = fmt_sprintf("%.3f"),dinm_statistic="p.value",df)
+```
+
+Show chart
+```{r}
+#| label: chart-bias
+#| include: true
+#| code-fold: true
+#| warning: false
+#| 
+
+
+
+ggplot(df,aes(x=bias,group=type,fill=type))+
+    geom_density(alpha=0.2)+
+  scale_fill_viridis_d() +
+  theme_minimal()+labs(color=" ",fill=" ")+
+  theme(legend.position = "top")+ geom_vline(xintercept=0)
+```
+
+
+
+
+# 5 Predicing mother groups
+
+
+## algorithm to predict new mother groups
+
+```{r}
+#| label: outcome-predict-fct
+#| include: true
+#| code-fold: true
+#| warning: false
+
+set.seed(1909)
+# Define programme
+predicted_peersupply<-function(dataframe,range=7){
+  dt<-dataframe
+  # Original ordering
+  dt[, order := .I]
+ # Randomly change date of birth 
+  dt$x_dob_random<-dt$x_dob+sample(-range:range,nrow(dt),replace=TRUE)
+ # Redo mother groups
+  setorder(dt,id_district,  x_dob_random)
+  dt[, count := 1:.N, by = id_district]
+  dt[, group_id := floor((count - 1) / 5)]
+  dt[, id_mother_group_random := paste(id_district, group_id, sep = "_")]
+  # Leave-one-out peer effect within random mother group
+      dt[, `:=`(
+        sum_lsupply = sum(x_lsupply_base),
+        n_group = .N
+      ), by = id_mother_group_random]
+      dt[, x_lsupply_peers_gr := (sum_lsupply - x_lsupply_base) / (n_group - 1)]
+  # Recentered iv
+      dt[,x_lsupply_peers_grc  := x_lsupply_peers_g-x_lsupply_peers_gr ]
+  # Return
+    # back to original order
+    setorder(dt, order)
+    return(dt$x_lsupply_peers_grc)
+}
+# testing
+
+ dt<-DGP_fast()
+ 
+
+dt$z<-predicted_peersupply(dt,3)
+
+ feols(y_lsupply~z+x_age+x_income+x_schooling|id_district+x_quarter+x_young+x_parity,data=dt,notes=FALSE)
+
+```
+
+
+## simulate
+
+```{r}
+#| label: outcome-predict-sim
+#| include: true
+#| code-fold: true
+#| warning: false
+#| cache: true
+  
+# Iterations
+I=100
+results<-data.table(id=rep(1:nrow(dt),each=I),iteration=rep(1:I,each=nrow(dt)))
+for (i in 1:I){
+
+results[(((i - 1) * nrow(dt)) + 1): (i * nrow(dt)), y := predicted_peersupply(dt,14)]
+
+}
+collapsed <- results[, .(
+  mean = mean(y, na.rm = TRUE),
+  sd = sd(y, na.rm = TRUE)
+), by = id]
+
+ hist(collapsed$mean,breaks=50)
+```
+
+
+```{r}
+#| label: outcome-sim_predicted
+#| include: true
+#| code-fold: true
+#| warning: false
+#| cache: true
+
+#Iterations
+II=1000
+# Dataset
+df_results<-data.frame(i=1:II,bias=NA,type="1 Conventional")
+df_results_recenter<-data.frame(i=1:II,bias=NA,type="2 Recentered")
+
+
+for (i in 1:II){
+      # Generate DGP
+    mydata<-DGP_fast()
+     # Original ordering
+     mydata[, order := .I]
+    # 1 conventional reg
+       res<-feols(y_lsupply~x_lsupply_peers_g|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["x_lsupply_peers_g", "Estimate"]
+      df_results$bias[i] <- bias-0.2
+      
+      # 2 recenter 
+        # Iterations
+        I=10
+        results<-data.table(order=rep(mydata$order,I),iteration=rep(1:I,each=nrow(dt)))
+        for (j in 1:I){
+        
+        results[(((j- 1) * nrow(dt)) + 1): (j * nrow(dt)), y := predicted_peersupply(mydata,14)]
+        
+        }
+        collapsed <- results[, .(
+          mean = mean(y, na.rm = TRUE)
+        ), by = order]
+       mydata$x_lsupply_peers_rc<-collapsed$mean
+    
+
+
+      res<-feols(y_lsupply~x_lsupply_peers_rc|id_district+x_quarter+x_young+x_parity,data=mydata,notes=FALSE)
+       bias<-summary(res)$coeftable["x_lsupply_peers_rc", "Estimate"]
+      df_results_recenter$bias[i] <- bias-0.2
 
 
     # Print
@@ -339,16 +696,19 @@ for (i in 1:I){
                cat("*")
         }
 }
+df<-rbind(df_results,df_results_recenter)
+datasummary_balance(bias~type,fmt = fmt_sprintf("%.3f"),dinm_statistic="p.value",df)
 ```
+
 
 Show chart
 ```{r}
-#| label: chart-bias
+#| label: chart-bias-predicted
 #| include: true
 #| code-fold: true
 #| warning: false
 #| 
-df<-rbind(df_results,df_results_recenter)
+
 
 
 ggplot(df,aes(x=bias,group=type,fill=type))+
