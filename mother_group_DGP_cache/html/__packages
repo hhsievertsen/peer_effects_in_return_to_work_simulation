@@ -4,3 +4,6 @@ lubridate
 fixest
 data.table
 modelsummary
+zoo
+lmtest
+patchwork
