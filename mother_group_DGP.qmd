@@ -477,9 +477,9 @@ And now it is perfectly blanced. Great! This suggests that it is fairly balanced
 
 
 
-# 4 Solving the exclusion bias issue
+# 5 Solving the exclusion bias issue
 
-## 4.1 Illustrating that the problem is real
+## 5.1 Illustrating that the problem is real
 
 We only showed that in one regression, the coefficient on average peer grandmother labor supply becomes significantly negative, when we condition on district and age5. But this could just be random chance. Naturally, because we generate the data we could also just simulate N DGPs and show that this is not just by chance, but we cannot translate that assessment to the real data.  To illustrate the problem more clearly, we therefore instead randomly reshuffle the mother groups and repeat the regression. In that regression the correlation should be 0 because we reshuffled and we can also do that on the real data. 
 
@@ -492,7 +492,7 @@ We only showed that in one regression, the coefficient on average peer grandmoth
 
 
 #Iterations
-I=100
+I=10000
 # Dataset
 df_sim<-data.frame(i=1:I,beta=NA,type="Raw")
 
@@ -521,10 +521,10 @@ for (i in 1:I){
     
       # Print
         if (i%%50==0){
-               cat(paste(i,"\n"))
+             #  cat(paste(i,"\n"))
         }
         else{
-               cat("*")
+             #  cat("*")
         }
     
 }
@@ -556,7 +556,7 @@ fig1
 The distribution is clearly not centered around 0, as we would expect!
 
 
-## 4.2 Approach 1: control for pool level 
+## 5.2 Approach 1: control for pool level 
 
 The first approach uses the idea of controlling for the pool level. We simply control for leave one out average of grandmother labor supply in the entire district. One could also do it by district and age, but let us start by district. 
 
@@ -570,7 +570,7 @@ The first approach uses the idea of controlling for the pool level. We simply co
 #| cache: true
 
 #Iterations
-I=100
+I=10000
 # Dataset
 df_sim_pool<-data.frame(i=1:I,beta=NA,type="Raw")
 
@@ -609,10 +609,10 @@ for (i in 1:I){
     
       # Print
         if (i%%50==0){
-               cat(paste(i,"\n"))
+           #    cat(paste(i,"\n"))
         }
         else{
-               cat("*")
+           #    cat("*")
         }
     
 }
@@ -634,7 +634,7 @@ Let us
 
 fig2<-ggplot(df_sim_pool,aes(x=beta))+geom_histogram(color="black",fill="white") +
   theme_minimal()+geom_vline(xintercept = 0)+labs(title="(b) control for pool level")+
-  xlim(-0.1,0.1)
+  xlim(-0.025,0.025)
 
 fig1+fig2
 ```
@@ -645,115 +645,96 @@ This clearly centers the distribution around 0! Great. That solution works.
 
 
 
-## 4.3 Approach 2: recenter variable based on adding variation in date of birth
+## 5.3 Approach 2: recenter variable based on adding variation in date of birth
 
 Let us know try the recentering approach. We could simply recenter by subtracting the pool level leave one out from the mother group leave one out. That should result in the same as above. However, we will know be more explicit about the pool level and instead simulate pools based on the mother groups you could be assigned to, by adding a bit of noise to the date of birth. 
 
 
 
 ```{r}
-#| label: recenter=sim
+#| label: recenter-sim-14
 #| include: true
 #| code-fold: true
 #| warning: false
+#| cache: true
 
+  # Dataset for results
+  df_sim_recent<-data.frame(i=1:I,beta=NA,type="Raw")
+  
+          
+ I=1000
 
-df_test<-df
+  for (i in 1:I){
 
- setorder(df_test, id_mother)
+              
 
- I=10
-# Empty data table to store results
-df_permute<-data.table(id_mother=rep(df_test$id_mother,times=I),
+    
+  # calculate random 
+  J=20
+    df_test<-df
+  # Empty data table to store results
+  df_permute<-data.table(id_mother=rep(df_test$id_mother,times=I),
                         iteration=rep(1:I,each=length(df_test$id_mother),
                         beta=NA)
                   )
-                       
-                       
-# simulate
-for (i in 1:I){
-  # New data of birth
-    df_test[, x_dob_new := x_dob + round(runif(.N, min = -14, max = 14))]
-  # Assign mother groups
-    setorder(df_test, id_district, x_dob_new, x_age,x_parity)
-    df_test[, order_original := .I , by = id_district]
-  # Assign groups
-    df_test[, count := 1:.N, by = id_district]
-    df_test[, group_id := floor((count - 1) / 5)]
-    df_test[, id_mother_group_new := paste(id_district, group_id, sep = "_")]
-   # Recalculate leave one out mean
-   df_test[, `:=`(
-      sum_gm=sum(x_gm_lsupply),
-      n_group = .N
-    ), by = id_mother_group_new]
-    df_test[, x_gm_lsupply_gs := (sum_gm - x_gm_lsupply) / (n_group - 1)]
-   # Save
-    setorder(df, id_mother)
-    df_permute$beta[df_permute$iteration == i ] <- df_test$x_gm_lsupply_gs
-    
-          # Print
-        if (i%%50==0){
-               cat(paste(i,"\n"))
-        }
-        else{
-               cat("*")
-        }
-    
-}
-df_collapsed <- df_permute[, .(x_gm_lsupply_gsim = mean(beta)), by = id_mother]
 
-
-# now merge on
-  df<-merge(df,df_collapsed,by="id_mother")
-  df[,x_gm_lsupply_grc :=x_gm_lsupply_g-x_gm_lsupply_gsim ]
+   setorder(df_test, id_mother)
+  for (j in 1:J){
+    # New data of birth
+      df_test[, x_dob_new := x_dob + round(runif(.N, min = -14, max = 14))]
+    # Assign mother groups
+      setorder(df_test, id_district, x_dob_new, x_age,x_parity)
+    # Assign groups
+      df_test[, count := 1:.N, by = id_district]
+      df_test[, group_id := floor((count - 1) / 5)]
+      df_test[, id_mother_group_new := paste(id_district, group_id, sep = "_")]
+     # Recalculate leave one out mean
+     df_test[, `:=`(
+        sum_gm=sum(x_gm_lsupply),
+        n_group = .N
+      ), by = id_mother_group_new]
+      df_test[, x_gm_lsupply_gs := (sum_gm - x_gm_lsupply) / (n_group - 1)]
+     # Save
+      setorder(df, id_mother)
+      df_permute$beta[df_permute$iteration == j ] <- df_test$x_gm_lsupply_gs
+      
+  }
   
-I=100
-# Dataset
-df_sim_recent<-data.frame(i=1:I,beta=NA,type="Raw")
+  df_collapsed <- df_permute[, .(x_gm_lsupply_gsim14 = mean(beta, na.rm = TRUE)), by = id_mother]
 
 
-for (i in 1:I){
-  # random order
-  df[, random :=rnorm(.N, mean = 0, sd = 1)]
-  # reorder
-  setorder(df, id_district, x_age5,random)
-  # Assign groups
-  df[, count := 1:.N, by = id_district]
-  df[, group_id := floor((count - 1) / 5)]
-  df[, id_mother_group_new := paste(id_district, group_id, sep = "_")]
-  # Recalculate leave one out mean
-   df[, `:=`(
-      sum_gm=sum(x_gm_lsupply),
-      n_group = .N
-    ), by = id_mother_group_new]
-    df[, x_gm_lsupply_gshuffle := (sum_gm - x_gm_lsupply) / (n_group - 1)]
-    
-    
-      df[,x_gm_lsupply_gshufflerc :=x_gm_lsupply_gshuffle-x_gm_lsupply_gsim ]
+  # now merge on
+
+  df<-merge(df,df_collapsed,by="id_mother")
+  df[,x_gm_lsupply_grc :=x_gm_lsupply_g-x_gm_lsupply_gsim14 ]
+  
   # Save estimate
-    res<-feols(x_gm_lsupply~x_gm_lsupply_gshufflerc|id_district+x_age5,data=df,notes=FALSE)
+    res<-feols(x_gm_lsupply~x_gm_lsupply_grc|id_district+x_age5,data=df,notes=FALSE)
     # Extract coefficient
-    beta <- summary(res)$coeftable["x_gm_lsupply_gshufflerc", "Estimate"]
+    beta <- summary(res)$coeftable["x_gm_lsupply_grc", "Estimate"]
     # Store beta-value in results dataset
     df_sim_recent$beta[i] <- beta
     
-      # Print
+     # Print
         if (i%%50==0){
-               cat(paste(i,"\n"))
+         #      cat(paste(i,"\n"))
         }
         else{
-               cat("*")
+      #         cat("*")
         }
-    
+      df<-df%>%select(-x_gm_lsupply_gsim14)
 }
 
 
 ```
+
+
+
 Let us again create a histogram and compare it to the other histograms
 
 
 ```{r}
-#| label: balance-plot-recenter
+#| label: balance-plot-recenter-14
 #| include: true
 #| code-fold: true
 #| warning: false
@@ -763,13 +744,119 @@ Let us again create a histogram and compare it to the other histograms
 
 
 fig3<-ggplot(df_sim_recent,aes(x=beta))+geom_histogram(color="black",fill="white") +
-  theme_minimal()+geom_vline(xintercept = 0)+labs(title="(c) recenter w.  dob")+
-  xlim(-0.1,0.1)
+  theme_minimal()+geom_vline(xintercept = 0)+labs(title="(c) recenter w.  dob 14d")+
+  xlim(-0.025,0.025)
 
 
 
 fig1+fig2+fig3
 ```
 
-This is not as narrow as (b), but it is also centered. Great! This has potential
+This is not as narrow as (b), and worse, it is not centered. Can we do better?
 
+
+## 5.4 Approach 3: a more generous recentering based on adding variation in date of birth
+
+Let us know try the recentering approach. We could simply recenter by subtracting the pool level leave one out from the mother group leave one out. That should result in the same as above. However, we will know be more explicit about the pool level and instead simulate pools based on the mother groups you could be assigned to, by adding a bit of noise to the date of birth. 
+
+
+
+```{r}
+#| label: recenter-sim-90
+#| include: true
+#| code-fold: true
+#| warning: false
+#| cache: true
+
+  # Dataset for results
+  df_sim_recent<-data.frame(i=1:I,beta=NA,type="Raw")
+  
+          
+ I=1000
+
+  for (i in 1:I){
+
+              
+
+    
+  # calculate random 
+  J=20
+    df_test<-df
+  # Empty data table to store results
+  df_permute<-data.table(id_mother=rep(df_test$id_mother,times=I),
+                        iteration=rep(1:I,each=length(df_test$id_mother),
+                        beta=NA)
+                  )
+
+   setorder(df_test, id_mother)
+  for (j in 1:J){
+    # New data of birth
+      df_test[, x_dob_new := x_dob + round(runif(.N, min = -90, max = 90))]
+    # Assign mother groups
+      setorder(df_test, id_district, x_dob_new, x_age,x_parity)
+    # Assign groups
+      df_test[, count := 1:.N, by = id_district]
+      df_test[, group_id := floor((count - 1) / 5)]
+      df_test[, id_mother_group_new := paste(id_district, group_id, sep = "_")]
+     # Recalculate leave one out mean
+     df_test[, `:=`(
+        sum_gm=sum(x_gm_lsupply),
+        n_group = .N
+      ), by = id_mother_group_new]
+      df_test[, x_gm_lsupply_gs := (sum_gm - x_gm_lsupply) / (n_group - 1)]
+     # Save
+      setorder(df, id_mother)
+      df_permute$beta[df_permute$iteration == j ] <- df_test$x_gm_lsupply_gs
+      
+  }
+  
+  df_collapsed <- df_permute[, .(x_gm_lsupply_gsim90 = mean(beta, na.rm = TRUE)), by = id_mother]
+
+
+  # now merge on
+
+  df<-merge(df,df_collapsed,by="id_mother")
+  df[,x_gm_lsupply_grc :=x_gm_lsupply_g-x_gm_lsupply_gsim90 ]
+  
+  # Save estimate
+    res<-feols(x_gm_lsupply~x_gm_lsupply_grc|id_district+x_age5,data=df,notes=FALSE)
+    # Extract coefficient
+    beta <- summary(res)$coeftable["x_gm_lsupply_grc", "Estimate"]
+    # Store beta-value in results dataset
+    df_sim_recent$beta[i] <- beta
+    
+     # Print
+        if (i%%50==0){
+         #      cat(paste(i,"\n"))
+        }
+        else{
+      #         cat("*")
+        }
+      df<-df%>%select(-x_gm_lsupply_gsim90)
+}
+
+
+```
+
+Let us again create a histogram and compare it to the other histograms
+
+```{r}
+#| label: balance-plot-recenter-90
+#| include: true
+#| code-fold: true
+#| warning: false
+
+
+
+
+
+fig4<-ggplot(df_sim_recent,aes(x=beta))+geom_histogram(color="black",fill="white") +
+  theme_minimal()+geom_vline(xintercept = 0)+labs(title="(d) recenter w.  dob 90d")+
+  xlim(-0.025,0.025)
+
+
+
+(fig1+fig2)/(fig3+fig4)
+```
+
+This is not as narrow as (b), and worse, it is not centered. Can we do better?

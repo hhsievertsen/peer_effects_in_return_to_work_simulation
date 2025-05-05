@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Hans Henrik Sievertsen">
-<meta name="dcterms.date" content="2025-03-27">
+<meta name="dcterms.date" content="2025-05-02">
 
 <title>Simulating the mother groups DGP</title>
 <style>
@@ -75,10 +75,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">1 Goal</a></li>
+  <li><a href="#preparation" id="toc-preparation" class="nav-link" data-scroll-target="#preparation">2 Preparation</a></li>
+  <li><a href="#the-data-generating-process-dgp" id="toc-the-data-generating-process-dgp" class="nav-link" data-scroll-target="#the-data-generating-process-dgp">3 The Data Generating Process (DGP)</a>
+  <ul class="collapse">
+  <li><a href="#defining-the-dgp" id="toc-defining-the-dgp" class="nav-link" data-scroll-target="#defining-the-dgp">3.1 Defining the DGP</a></li>
+  <li><a href="#showing-the-dgp" id="toc-showing-the-dgp" class="nav-link" data-scroll-target="#showing-the-dgp">3.2 Showing the DGP</a>
+  <ul class="collapse">
+  <li><a href="#the-group-assignments" id="toc-the-group-assignments" class="nav-link" data-scroll-target="#the-group-assignments">3.2.1 The group assignments</a></li>
+  <li><a href="#the-first-stage" id="toc-the-first-stage" class="nav-link" data-scroll-target="#the-first-stage">3.2.2 The “first” stage</a></li>
+  <li><a href="#summary-stats" id="toc-summary-stats" class="nav-link" data-scroll-target="#summary-stats">3.2.3 Summary stats</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#check-for-balance" id="toc-check-for-balance" class="nav-link" data-scroll-target="#check-for-balance">4 Check for balance</a>
+  <ul class="collapse">
+  <li><a href="#the-traditional-balance-check." id="toc-the-traditional-balance-check." class="nav-link" data-scroll-target="#the-traditional-balance-check.">4.1 The traditional balance check.</a></li>
+  <li><a href="#an-alternative-approach-check-distribution-of-p-values" id="toc-an-alternative-approach-check-distribution-of-p-values" class="nav-link" data-scroll-target="#an-alternative-approach-check-distribution-of-p-values">4.2 An alternative approach: check distribution of p-values!</a>
+  <ul class="collapse">
+  <li><a href="#by-district-only" id="toc-by-district-only" class="nav-link" data-scroll-target="#by-district-only">4.2.1 By district only</a></li>
+  <li><a href="#by-district-and-age" id="toc-by-district-and-age" class="nav-link" data-scroll-target="#by-district-and-age">4.2.2 By district and age</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#solving-the-exclusion-bias-issue" id="toc-solving-the-exclusion-bias-issue" class="nav-link" data-scroll-target="#solving-the-exclusion-bias-issue">5 Solving the exclusion bias issue</a>
+  <ul class="collapse">
+  <li><a href="#illustrating-that-the-problem-is-real" id="toc-illustrating-that-the-problem-is-real" class="nav-link" data-scroll-target="#illustrating-that-the-problem-is-real">5.1 Illustrating that the problem is real</a></li>
+  <li><a href="#approach-1-control-for-pool-level" id="toc-approach-1-control-for-pool-level" class="nav-link" data-scroll-target="#approach-1-control-for-pool-level">5.2 Approach 1: control for pool level</a></li>
+  <li><a href="#approach-2-recenter-variable-based-on-adding-variation-in-date-of-birth" id="toc-approach-2-recenter-variable-based-on-adding-variation-in-date-of-birth" class="nav-link" data-scroll-target="#approach-2-recenter-variable-based-on-adding-variation-in-date-of-birth">5.3 Approach 2: recenter variable based on adding variation in date of birth</a></li>
+  <li><a href="#approach-3-a-more-generous-recentering-based-on-adding-variation-in-date-of-birth" id="toc-approach-3-a-more-generous-recentering-based-on-adding-variation-in-date-of-birth" class="nav-link" data-scroll-target="#approach-3-a-more-generous-recentering-based-on-adding-variation-in-date-of-birth">5.4 Approach 3: a more generous recentering based on adding variation in date of birth</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
@@ -100,7 +135,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 27, 2025</p>
+      <p class="date">May 2, 2025</p>
     </div>
   </div>
   
@@ -112,365 +147,205 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="goal" class="level1">
 <h1>1 Goal</h1>
-<p>The goal is to simulate a data generating process mimicking the mother group assignment in Denmark. It is used to understand the role of fixed effects and the role of exclusion bias. Focus in on balancing tests and confounding factors.</p>
+<p>The goal is to simulate a data generating process (DGP) mimicking the mother group assignment in Denmark. It is used to understand the role of fixed effects and the role of exclusion bias.</p>
 </section>
 <section id="preparation" class="level1">
 <h1>2 Preparation</h1>
-<p>We set seed and load libraries.</p>
+<p>We set seed, clear the workspace and load libraries.</p>
 <section id="set-seed" class="level5">
 <h5 class="anchored" data-anchor-id="set-seed">Set seed</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1909</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list=</span><span class="fu">ls</span>())</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1909</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="load-libriaries" class="level5">
 <h5 class="anchored" data-anchor-id="load-libriaries">Load libriaries</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)     <span class="co"># To create charts</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)       <span class="co"># Data manipulation tools</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)   <span class="co"># Date manipulation tools</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)      <span class="co"># Estimation</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)  <span class="co"># Data manipulation tools</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)      <span class="co"># To create charts</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)    <span class="co"># To mix charts</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)        <span class="co"># Data manipulation tools</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)    <span class="co"># Date manipulation tools</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(fixest)       <span class="co"># Estimation</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.table)   <span class="co"># Data manipulation tools</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(modelsummary) <span class="co"># Create tables </span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lmtest)       <span class="co"># Hypotheses testing</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
-<section id="define-data-generating-process" class="level1">
-<h1>2 Define Data Generating Process</h1>
-<p>Note that the assignment is only strict based on district, but not based on mother age, parity and date of birth. This is true to the real DGP (I believe), but makes the FE tricky. I.e. a nurse will only assign mothers to mother groups within her own district, but in terms of age, parity and date of birth (of the child) she is not strict, but instead just allocated to the closest neighbour.</p>
+<section id="the-data-generating-process-dgp" class="level1">
+<h1>3 The Data Generating Process (DGP)</h1>
+<section id="defining-the-dgp" class="level2">
+<h2 class="anchored" data-anchor-id="defining-the-dgp">3.1 Defining the DGP</h2>
+<p>We here create a function that simulates a dataset mimicking the DGP we have in mind. The key features we focus on are</p>
+<ol type="1">
+<li><p>The role of unobservables (in group assignments and outcomes)</p></li>
+<li><p>The assignment mechanism</p></li>
+<li><p>The peer effects</p></li>
+</ol>
+<p><strong>Re 1.</strong>: We assume there is an individual unobservable <span class="math inline">\(U\)</span> that is a combination of a unique individual effect and a district level effect. This unobservable affects variables like labor supply, income, parental labor supply and age. But <em>not</em> parity and child dob.</p>
+<p><strong>Re 2.</strong>: The assignment is only strict based on district. THat is, <em>within each district</em>, nurses <em>sort</em> the mothers by</p>
+<ol type="1">
+<li><p>Child date of birth (days)</p></li>
+<li><p>Mother age (integers)</p></li>
+<li><p>Parity (binary)</p></li>
+</ol>
+<p>We add a bit of noise to the sorting to mimick the real world where there will be errors, mothers coming in during the process etc. The nurse then simply starts filling mother groups by counting to five. That is, we <em>restrict mother groups to the size of 5</em>.</p>
+<p><strong>Re 3.</strong>: True peer effects are tricky to simulate. Here we cheat a bit by ignoring the multiplication effect/reflect effect. That is we:</p>
+<ul>
+<li><p>Define a latent level of mother labor supply depending on grand parent labor supply, the unobservables, etc.</p></li>
+<li><p>Calculate the mother group leave one out average latent labor supply.</p></li>
+<li><p>Calculate the <em>actual</em> labour supply by adding the peer effect to the latent effect.</p></li>
+</ul>
+<p>That is it for now.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>DGP_fast <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">n =</span> <span class="dv">70000</span>, <span class="at">n_districts =</span> <span class="dv">500</span>) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># District identifier</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  id_district <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n_districts, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># District unobserved effect</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  district_effect <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_districts, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Individual unobserved effect</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  U <span class="ot">&lt;-</span> district_effect[id_district] <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Covariates</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  x_age <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">runif</span>(n, <span class="dv">18</span>, <span class="dv">40</span>))</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  x_parity <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  x_schooling <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">9</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">*</span> x_age <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n))</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  x_income <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">200000</span> <span class="sc">+</span> <span class="dv">5000</span> <span class="sc">*</span> x_schooling <span class="sc">+</span> <span class="dv">10000</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">20000</span>))</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  gm_lsupply <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="dv">20</span> <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>))</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  x_dob <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2010-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2017-12-31"</span>), <span class="at">by =</span> <span class="st">"day"</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create data frame</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">id_mother =</span> <span class="dv">1</span><span class="sc">:</span>n, id_district, x_age, x_parity,</span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                   x_schooling, x_income, gm_lsupply, x_dob)</span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Assign mother groups</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setorder</span>(dt, id_district, x_parity, x_dob, x_age)</span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  dt[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  dt[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  dt[, id_mother_group <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Create fixed effects</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  dt[, x_quarter <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">quarter</span>(x_dob, <span class="at">with_year =</span> <span class="cn">TRUE</span>)]</span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  dt[, x_month <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">month</span>(x_dob)]</span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>  dt[, x_year <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">year</span>(x_dob)]</span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  dt[, x_young <span class="sc">:</span><span class="er">=</span> <span class="fu">as.integer</span>(x_age <span class="sc">&lt;</span> <span class="dv">30</span>)]</span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Leave-one-out calculations</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_schooling =</span> <span class="fu">sum</span>(x_schooling),</span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_income =</span> <span class="fu">sum</span>(x_income),</span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_group =</span> .N</span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  ), by <span class="ot">=</span> id_mother_group]</span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>  dt[, x_schooling_m1 <span class="sc">:</span><span class="er">=</span> (sum_schooling <span class="sc">-</span> x_schooling) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>  dt[, x_income_m1 <span class="sc">:</span><span class="er">=</span> (sum_income <span class="sc">-</span> x_income) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Leave-one-out calculations, district, year and month level</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>  dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_schooling =</span> <span class="fu">sum</span>(x_schooling),</span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">sum_income =</span> <span class="fu">sum</span>(x_income),</span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">n_group =</span> .N</span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  ), by <span class="ot">=</span> id_district]</span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  dt[, x_schooling_d1 <span class="sc">:</span><span class="er">=</span> (sum_schooling <span class="sc">-</span> x_schooling) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  dt[, x_income_d1 <span class="sc">:</span><span class="er">=</span> (sum_income <span class="sc">-</span> x_income) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recentered IV </span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>  dt[, x_schooling_m1_recentered <span class="sc">:</span><span class="er">=</span> x_schooling_m1<span class="sc">-</span>x_schooling_d1]</span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Statically model labor supply</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Initial (baseline) labor supply without peer effect</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>      dt[, lsupply_base <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>, </span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>                                <span class="dv">20</span> <span class="sc">+</span>         <span class="co"># base level</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">0.5</span> <span class="sc">*</span> U <span class="sc">+</span>     <span class="co"># unobserved factor</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">0.3</span> <span class="sc">*</span> gm_lsupply <span class="sc">+</span>  <span class="co"># grandmother's influence</span></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">rnorm</span>(.N, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># noise</span></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>      ))]</span>
-<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Leave-one-out peer effect within mother group</span></span>
-<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>      dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
-<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_lsupply =</span> <span class="fu">sum</span>(lsupply_base),</span>
-<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
-<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_mother_group]</span>
-<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers <span class="sc">:</span><span class="er">=</span> (sum_lsupply <span class="sc">-</span> lsupply_base) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>       <span class="co"># Leave-one-out peer effect within district</span></span>
-<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>      dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
-<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_lsupply =</span> <span class="fu">sum</span>(lsupply_base),</span>
-<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
-<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_district]</span>
-<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>      </span>
-<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers_d <span class="sc">:</span><span class="er">=</span> (sum_lsupply <span class="sc">-</span> lsupply_base) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
-<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>      dt[, x_lsupply_peers_rc <span class="sc">:</span><span class="er">=</span> x_lsupply_peers<span class="sc">-</span>x_lsupply_peers_d]</span>
-<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Final labor supply including peer effect</span></span>
-<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>      dt[, y_lsupply <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>,</span>
-<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>                             lsupply_base <span class="sc">+</span></span>
-<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>                             <span class="fl">0.2</span> <span class="sc">*</span> x_lsupply_peers  <span class="co"># peer effect coefficient</span></span>
-<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>      ))]</span>
-<span id="cb3-75"><a href="#cb3-75" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Keep only relevant columns</span></span>
-<span id="cb3-76"><a href="#cb3-76" aria-hidden="true" tabindex="-1"></a>  dt[, .SD, .SDcols <span class="ot">=</span> <span class="fu">patterns</span>(<span class="st">"^id_"</span>, <span class="st">"^x_"</span>, <span class="st">"^gm_"</span>,<span class="st">"^y_"</span>)]</span>
-<span id="cb3-77"><a href="#cb3-77" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(dt)</span>
-<span id="cb3-78"><a href="#cb3-78" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># District identifier</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    id_district <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n_districts, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># District unobserved effect</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    district_effect <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n_districts, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Individual unobserved effect</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    U <span class="ot">&lt;-</span> district_effect[id_district] <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Covariates, note that parity and dob are unrelated to u, age, education, income, gm labour supply are not </span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    x_age <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">18</span> <span class="sc">+</span> <span class="dv">10</span> <span class="sc">*</span> <span class="fu">runif</span>(n) <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n))  <span class="co"># now depends on U</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    x_age <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="fu">pmin</span>(x_age, <span class="dv">40</span>), <span class="dv">18</span>)  <span class="co"># keep age between 18 and 40</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    x_parity <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    x_schooling <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">9</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">*</span> x_age <span class="sc">+</span> <span class="fl">0.8</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n))</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    x_income <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="dv">200000</span> <span class="sc">+</span> <span class="dv">5000</span> <span class="sc">*</span> x_schooling <span class="sc">+</span> <span class="dv">10000</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">20000</span>))</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    x_gm_lsupply <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">0</span>, <span class="dv">20</span> <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> U <span class="sc">+</span> <span class="fu">rnorm</span>(n, <span class="dv">0</span>, <span class="dv">5</span>))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    x_dob <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2010-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2017-12-31"</span>), <span class="at">by =</span> <span class="st">"day"</span>), n, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create data frame</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    dt <span class="ot">&lt;-</span> <span class="fu">data.table</span>(<span class="at">id_mother =</span> <span class="dv">1</span><span class="sc">:</span>n, id_district, x_age, x_parity,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                     x_schooling, x_income, x_gm_lsupply, x_dob)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign mother groups</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setorder</span>(dt, id_district, x_dob, x_age,x_parity)</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    dt[, order_original <span class="sc">:</span><span class="er">=</span> .I , by <span class="ot">=</span> id_district]</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add small random noise to row numbers</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    dt[, order_noisy <span class="sc">:</span><span class="er">=</span> .I <span class="sc">+</span> <span class="fu">rnorm</span>(.N, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)]</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Sort by the noisy key</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">setorder</span>(dt, id_district,order_noisy)</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    dt[, order_noisy <span class="sc">:</span><span class="er">=</span> .I , by <span class="ot">=</span> id_district]</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign groups</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>    dt[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    dt[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    dt[, id_mother_group <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create fixed effects</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    dt[, x_quarter <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">quarter</span>(x_dob, <span class="at">with_year =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    dt[, x_month <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">month</span>(x_dob)]</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    dt[, x_year <span class="sc">:</span><span class="er">=</span> lubridate<span class="sc">::</span><span class="fu">year</span>(x_dob)]</span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    dt[, x_young <span class="sc">:</span><span class="er">=</span> <span class="fu">as.integer</span>(x_age <span class="sc">&lt;</span> <span class="dv">30</span>)]</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    dt[, x_age5 <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>(x_age<span class="sc">/</span><span class="dv">5</span>)<span class="sc">*</span><span class="dv">5</span>]</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Leave-one-out variables</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_schooling =</span> <span class="fu">sum</span>(x_schooling),</span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_income =</span> <span class="fu">sum</span>(x_income),</span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>      <span class="at">n_group =</span> .N</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    ), by <span class="ot">=</span> id_mother_group]</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    dt[, x_schooling_g <span class="sc">:</span><span class="er">=</span> (sum_schooling <span class="sc">-</span> x_schooling) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    dt[, x_income_g <span class="sc">:</span><span class="er">=</span> (sum_income <span class="sc">-</span> x_income) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    dt[, x_gm_lsupply_g <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Create labor supply (our main outcome)</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Initial (baseline) labor supply without peer effect</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a>    dt[, lsupply_base <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>, </span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>                                       <span class="dv">20</span> <span class="sc">+</span>         <span class="co"># base level</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>                                         <span class="fl">0.5</span> <span class="sc">*</span> U <span class="sc">+</span>     <span class="co"># unobserved factor</span></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>                                         <span class="fl">0.3</span> <span class="sc">*</span> x_gm_lsupply <span class="sc">+</span>  <span class="co"># grandmother's influence</span></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>                                         <span class="fu">rnorm</span>(.N, <span class="dv">0</span>, <span class="dv">5</span>)  <span class="co"># noise</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>    ))]</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Leave-one-out peer effect within mother group</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    dt[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_lsupply =</span> <span class="fu">sum</span>(lsupply_base),</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">n_group =</span> .N</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>    ), by <span class="ot">=</span> id_mother_group]</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a>    dt[, x_lsupply_g <span class="sc">:</span><span class="er">=</span> (sum_lsupply <span class="sc">-</span> lsupply_base) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Final labor supply including peer effect</span></span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>    dt[, y_lsupply <span class="sc">:</span><span class="er">=</span> <span class="fu">pmin</span>(<span class="dv">40</span>, <span class="fu">pmax</span>(<span class="dv">0</span>,</span>
+<span id="cb3-67"><a href="#cb3-67" aria-hidden="true" tabindex="-1"></a>                                    lsupply_base <span class="sc">+</span></span>
+<span id="cb3-68"><a href="#cb3-68" aria-hidden="true" tabindex="-1"></a>                                      <span class="fl">0.2</span> <span class="sc">*</span> x_lsupply_g  <span class="co"># peer effect coefficient</span></span>
+<span id="cb3-69"><a href="#cb3-69" aria-hidden="true" tabindex="-1"></a>    ))]</span>
+<span id="cb3-70"><a href="#cb3-70" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb3-71"><a href="#cb3-71" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Keep only relevant columns</span></span>
+<span id="cb3-72"><a href="#cb3-72" aria-hidden="true" tabindex="-1"></a>    dt<span class="ot">&lt;-</span>dt[, .SD, .SDcols <span class="ot">=</span> <span class="fu">grep</span>(<span class="st">"^id_|^x_|^gm_|^y_"</span>, <span class="fu">names</span>(dt), <span class="at">value =</span> <span class="cn">TRUE</span>)]</span>
+<span id="cb3-73"><a href="#cb3-73" aria-hidden="true" tabindex="-1"></a>      <span class="fu">return</span>(dt)</span>
+<span id="cb3-74"><a href="#cb3-74" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="show-data" class="level4">
-<h4 class="anchored" data-anchor-id="show-data">Show data</h4>
-<div class="cell">
+</section>
+<section id="showing-the-dgp" class="level2">
+<h2 class="anchored" data-anchor-id="showing-the-dgp">3.2 Showing the DGP</h2>
+<section id="the-group-assignments" class="level3">
+<h3 class="anchored" data-anchor-id="the-group-assignments">3.2.1 The group assignments</h3>
+<p>Let us have a look at the data generated by the DGP function defined above. We first focus on the group assignments. The variables are sorted so that without noise they should be perfectly assigned to groups. The group assignment mostly follows this sorting, but with some discrepancies. This seems realistic.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/show data_6f95df09faf1ee389c45caebf56939f0">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setorder</span>(df, id_district, x_parity, x_dob, x_age)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df[, .SD, <span class="at">.SDcols =</span> <span class="fu">c</span>(<span class="st">"id_district"</span>,<span class="st">"x_dob"</span>,<span class="st">"x_age"</span>,<span class="st">"x_parity"</span>,<span class="st">"id_mother_group"</span>,<span class="st">"y_lsupply"</span>)],<span class="at">n=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(df[, .SD, <span class="at">.SDcols =</span> <span class="fu">c</span>(<span class="st">"id_district"</span>,<span class="st">"id_district"</span>, <span class="st">"x_dob"</span>, <span class="st">"x_age"</span>,<span class="st">"x_parity"</span>, <span class="st">"id_mother_group"</span>,<span class="st">"y_lsupply"</span>)],<span class="at">n=</span><span class="dv">20</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>    id_district      x_dob x_age x_parity id_mother_group y_lsupply
-          &lt;int&gt;     &lt;Date&gt; &lt;num&gt;    &lt;int&gt;          &lt;char&gt;     &lt;num&gt;
- 1:           1 2010-01-25    35        1             1_0  27.89592
- 2:           1 2010-09-06    22        1             1_0  30.60319
- 3:           1 2010-10-23    33        1             1_0  34.54620
- 4:           1 2010-10-25    28        1             1_0  32.44216
- 5:           1 2010-11-18    23        1             1_0  36.48656
- 6:           1 2011-01-17    33        1             1_1  29.77068
- 7:           1 2011-01-31    27        1             1_1  26.18926
- 8:           1 2011-04-07    27        1             1_1  24.19758
- 9:           1 2011-05-05    20        1             1_1  23.40022
-10:           1 2011-05-08    31        1             1_1  28.38030
-11:           1 2011-05-09    37        1             1_2  29.33789
-12:           1 2011-05-25    34        1             1_2  32.01883
-13:           1 2011-07-24    21        1             1_2  34.19439
-14:           1 2011-08-14    37        1             1_2  31.01366
-15:           1 2011-08-20    40        1             1_2  35.52345
-16:           1 2011-08-24    32        1             1_3  35.27017
-17:           1 2011-09-09    38        1             1_3  37.74765
-18:           1 2011-09-30    35        1             1_3  26.95258
-19:           1 2011-10-11    28        1             1_3  35.83163
-20:           1 2011-11-27    21        1             1_3  34.33218
-    id_district      x_dob x_age x_parity id_mother_group y_lsupply</code></pre>
+<pre><code>    id_district id_district      x_dob x_age x_parity id_mother_group y_lsupply
+          &lt;int&gt;       &lt;int&gt;     &lt;Date&gt; &lt;num&gt;    &lt;int&gt;          &lt;char&gt;     &lt;num&gt;
+ 1:           1           1 2010-01-13    18        1             1_0  40.00000
+ 2:           1           1 2010-01-18    18        1             1_0  28.31111
+ 3:           1           1 2010-02-08    23        1             1_0  36.56377
+ 4:           1           1 2010-02-25    22        1             1_0  30.42646
+ 5:           1           1 2010-04-01    28        1             1_0  40.00000
+ 6:           1           1 2010-04-24    21        1             1_1  15.79075
+ 7:           1           1 2010-08-14    20        1             1_2  26.12610
+ 8:           1           1 2010-09-06    20        1             1_2  40.00000
+ 9:           1           1 2010-10-12    19        1             1_2  30.13255
+10:           1           1 2010-11-12    21        1             1_3  28.43505
+11:           1           1 2011-01-22    28        1             1_3  35.59621
+12:           1           1 2011-02-10    24        1             1_3  22.32589
+13:           1           1 2011-04-04    19        1             1_4  31.18930
+14:           1           1 2011-05-04    18        1             1_5  25.77552
+15:           1           1 2011-06-07    30        1             1_5  34.96100
+16:           1           1 2011-07-17    20        1             1_4  24.84820
+17:           1           1 2011-09-01    25        1             1_6  17.03290
+18:           1           1 2011-09-02    28        1             1_5  27.45957
+19:           1           1 2011-09-14    26        1             1_6  36.93712
+20:           1           1 2011-09-20    27        1             1_6  29.85149
+    id_district id_district      x_dob x_age x_parity id_mother_group y_lsupply</code></pre>
 </div>
 </div>
 </section>
-</section>
-<section id="the-conventional-balancing-check" class="level1">
-<h1>3 The conventional balancing check</h1>
-<p>So now let us see what happens when we test for balancing.</p>
-<section id="preparation-1" class="level4">
-<h4 class="anchored" data-anchor-id="preparation-1">Preparation</h4>
-<p>First we create a dataset to store results</p>
-<div class="cell">
+<section id="the-first-stage" class="level3">
+<h3 class="anchored" data-anchor-id="the-first-stage">3.2.2 The “first” stage</h3>
+<p>We can look at many aspects of the data, but as a starter, let us have a look at the link between grand mother labor supply and own labor supply. This looks as expected (but I am puzzled about the NAs, anyway).</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/show first stage_0ce29aed0c2550a524c6f41abd83a9c2">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Iterations</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>I<span class="ot">=</span><span class="dv">1000</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataset</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>df_results<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"1 Conventional"</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>df_results_pool<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"2 Control for pool level"</span>)</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>df_results_controls<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"3 Flexible controls instead of FE"</span>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>df_results_controls_pool<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"4 Pool level &amp; flexible controls"</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>df_results_recenter<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"5 Recentered"</span>)</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>df_results_placebo<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">p=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"6 Placebo"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-</section>
-<section id="simulate" class="level4">
-<h4 class="anchored" data-anchor-id="simulate">Simulate</h4>
-<p>Now we test for balance using 3 different approach</p>
-<ol type="1">
-<li><p>We regress own schooling on peer schooling: <span class="math inline">\(schooling_i=\alpha_0+\alpha_1 schooling_{i-1}+DistrictFE_i+YoungAgeFE_i+ParityFE_i+MonthOfBirthFE_i+u_i\)</span>.</p></li>
-<li><p>We regress own schooling on peer schooling, including pool leave one out level schooling: <span class="math inline">\(schooling_i=\alpha_0+\alpha_1 schooling_{i-1}+\alpha_2 DistrictSchooling_{i-1}+DistrictFE_i+YoungAgeFE_i+ParityFE_i+MonthOfBirthFE_i+u_i\)</span>.</p></li>
-<li><p>Like 2, but with FE for year and month and controls for mother age: <span class="math inline">\(schooling_i=\alpha_0+\alpha_1 schooling_{i-1}+\alpha_2 DistrictSchooling_{i-1}+\alpha_3 AgeFE_i+DistrictFE_i+ParityFE_i+YearFE_i+MonthFE_i+u_i\)</span>.</p></li>
-</ol>
-<p>And we then compare that to a placebo regression (where we added a random variable, ideally we would randomly reallocate variables, but one step at the time)</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate DGP</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    mydata<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Add random variable</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    mydata<span class="sc">$</span>x<span class="ot">=</span><span class="fu">rnorm</span>(<span class="at">n=</span><span class="fu">nrow</span>(mydata),<span class="dv">0</span>,<span class="dv">1</span>)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1 Conventional</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x_schooling_m1<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_schooling_m1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        df_results<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 2 Control for pool level</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x_schooling_m1<span class="sc">+</span>x_schooling_d1<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_schooling_m1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        df_results_pool<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>     <span class="co">#  3 Control for pool level, flexible controls </span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x_schooling_m1<span class="sc">+</span>x_age<span class="sc">+</span>x_parity<span class="sc">|</span>id_district<span class="sc">+</span>x_year<span class="sc">+</span>x_month,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_schooling_m1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        df_results_controls<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  4 Control for pool level, flexible controls</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x_schooling_m1<span class="sc">+</span>x_schooling_d1<span class="sc">+</span>x_age<span class="sc">+</span>x_parity<span class="sc">|</span>id_district<span class="sc">+</span>x_year<span class="sc">+</span>x_month,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_schooling_m1"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>        df_results_controls_pool<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  5 Recentered IV</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x_schooling_m1_recentered<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_schooling_m1_recentered"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>        df_results_recenter<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="co">#  6 Placebo</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>        res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_schooling<span class="sc">~</span>x<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Extract p-value from F-test</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>        p_value <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x"</span>, <span class="st">"Pr(&gt;|t|)"</span>]</span>
-<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Store p-value in results dataset</span></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>        df_results_placebo<span class="sc">$</span>p[i] <span class="ot">&lt;-</span> p_value</span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print</span></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="fu">paste</span>(i,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
-<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
-<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="st">"*"</span>)</span>
-<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>*************************************************50 
-*************************************************100 
-*************************************************150 
-*************************************************200 
-*************************************************250 
-*************************************************300 
-*************************************************350 
-*************************************************400 
-*************************************************450 
-*************************************************500 
-*************************************************550 
-*************************************************600 
-*************************************************650 
-*************************************************700 
-*************************************************750 
-*************************************************800 
-*************************************************850 
-*************************************************900 
-*************************************************950 
-*************************************************1000 </code></pre>
-</div>
-</div>
-</section>
-<section id="charts" class="level4">
-<h4 class="anchored" data-anchor-id="charts">Charts</h4>
-<p>Now we create charts of p values. They should be uniformly distributed. We start with a histogram.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">rbind</span>(df_results,df_results_placebo,df_results_controls,df_results_pool,df_results_controls_pool,df_results_recenter)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df,<span class="fu">aes</span>(<span class="at">x=</span>p,<span class="at">group=</span>type,<span class="at">fill=</span>type))<span class="sc">+</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="at">alpha=</span><span class="fl">0.5</span>,<span class="at">color=</span><span class="st">"black"</span>)<span class="sc">+</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>type)<span class="sc">+</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">color=</span><span class="st">" "</span>,<span class="at">fill=</span><span class="st">" "</span>)<span class="sc">+</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Collapse data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_collapsed<span class="ot">&lt;-</span>df<span class="sc">%&gt;%</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">mutate</span>(<span class="at">x_gm_lsupply_round=</span><span class="fu">round</span>(x_gm_lsupply))<span class="sc">%&gt;%</span>       <span class="co"># Round grand mother labor supply</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">group_by</span>(x_gm_lsupply_round)<span class="sc">%&gt;%</span>       <span class="co"># Group by the rounded labor supply</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">summarize</span>(<span class="at">y_lsupply=</span><span class="fu">mean</span>(y_lsupply,<span class="at">na.rm =</span> T))  <span class="co"># Collapsed </span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Create plot</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df_collapsed,<span class="fu">aes</span>(<span class="at">x=</span>x_gm_lsupply_round,<span class="at">y=</span>y_lsupply))<span class="sc">+</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="mother_group_DGP_files/figure-html/chart-histogram-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<p>It might be easier to read in a plot of CDFS</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">rbind</span>(df_results,df_results_placebo,df_results_controls,df_results_pool,df_results_controls_pool,df_results_recenter)<span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(type,p)<span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(type)<span class="sc">%&gt;%</span><span class="fu">mutate</span>(<span class="at">rank=</span><span class="fu">row_number</span>()<span class="sc">/</span><span class="fu">n</span>())</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df,<span class="fu">aes</span>(<span class="at">x=</span>p,<span class="at">group=</span>type,<span class="at">y=</span>rank,<span class="at">color=</span>type))<span class="sc">+</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">alpha=</span><span class="fl">0.2</span>)<span class="sc">+</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">color=</span><span class="st">" "</span>,<span class="at">fill=</span><span class="st">" "</span>)<span class="sc">+</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)<span class="sc">+</span> </span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">guides</span>(<span class="at">color =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<p><img src="mother_group_DGP_files/figure-html/chart-cdf-1.png" class="img-fluid" width="672"></p>
+<p><img src="mother_group_DGP_files/figure-html/show%20first%20stage-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
-</section>
-<section id="the-outcome" class="level1">
-<h1>4 The outcome</h1>
-<div class="cell">
+<section id="summary-stats" class="level3">
+<h3 class="anchored" data-anchor-id="summary-stats">3.2.3 Summary stats</h3>
+<p>Finally, let us have a look at some summary stats. There are some variables that could be better defined, but overall it looks fine.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/show sum stats_3251a0617f1b016a9ce9fc52a22bcfed">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Iterations</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>I<span class="ot">=</span><span class="dv">1000</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataset</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>df_results<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">bias=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"1 Conventional"</span>)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df_results_recenter<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">bias=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"2 Recentered"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a> mydata<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Generate DGP</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    mydata<span class="ot">&lt;-</span><span class="fu">DGP_fast</span>()</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># 1 conventional reg</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>       res<span class="ot">&lt;-</span><span class="fu">feols</span>(y_lsupply<span class="sc">~</span>x_lsupply_peers<span class="sc">+</span>x_schooling<span class="sc">+</span>x_schooling_m1<span class="sc">+</span>x_income<span class="sc">+</span>x_income_m1<span class="sc">|</span>id_district<span class="sc">+</span>x_quarter<span class="sc">+</span>x_young<span class="sc">+</span>x_parity,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>       bias<span class="ot">&lt;-</span><span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_lsupply_peers"</span>, <span class="st">"Estimate"</span>]<span class="sc">-</span><span class="fl">0.2</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      df_results<span class="sc">$</span>bias[i] <span class="ot">&lt;-</span> bias</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>   <span class="co"># 2 recenter</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>       res<span class="ot">&lt;-</span><span class="fu">feols</span>(y_lsupply<span class="sc">~</span>x_lsupply_peers_rc<span class="sc">+</span>x_age,<span class="at">data=</span>mydata,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>       bias<span class="ot">&lt;-</span><span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_lsupply_peers_rc"</span>, <span class="st">"Estimate"</span>]<span class="sc">-</span><span class="fl">0.2</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>      df_results_recenter<span class="sc">$</span>bias[i] <span class="ot">&lt;-</span> bias</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Print</span></span>
-<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
-<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="fu">paste</span>(i,<span class="st">"</span><span class="sc">\n</span><span class="st">"</span>))</span>
-<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
-<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>               <span class="fu">cat</span>(<span class="st">"*"</span>)</span>
-<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>*************************************************50 
-*************************************************100 
-*************************************************150 
-*************************************************200 
-*************************************************250 
-*************************************************300 
-*************************************************350 
-*************************************************400 
-*************************************************450 
-*************************************************500 
-*************************************************550 
-*************************************************600 
-*************************************************650 
-*************************************************700 
-*************************************************750 
-*************************************************800 
-*************************************************850 
-*************************************************900 
-*************************************************950 
-*************************************************1000 </code></pre>
-</div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df<span class="ot">&lt;-</span><span class="fu">rbind</span>(df_results,df_results_recenter)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">datasummary_balance</span>(bias<span class="sc">~</span>type,<span class="at">fmt =</span> <span class="fu">fmt_sprintf</span>(<span class="st">"%.3f"</span>),<span class="at">dinm_statistic=</span><span class="st">"p.value"</span>,df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">datasummary_skim</span>(df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 
@@ -478,8 +353,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
     <script>
 
-      function styleCell_8hcdcm0mwqfjq1rr8pos(i, j, css_id) {
-          var table = document.getElementById("tinytable_8hcdcm0mwqfjq1rr8pos");
+      function styleCell_lpk5ak6rx469ozmviyu5(i, j, css_id) {
+          var table = document.getElementById("tinytable_lpk5ak6rx469ozmviyu5");
           var cell = table.rows[i]?.cells[j];  // Safe navigation to avoid errors
           if (cell) {
               console.log(`Styling cell at (${i}, ${j}) with class ${css_id}`);
@@ -489,7 +364,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           }
       }
       function insertSpanRow(i, colspan, content) {
-        var table = document.getElementById('tinytable_8hcdcm0mwqfjq1rr8pos');
+        var table = document.getElementById('tinytable_lpk5ak6rx469ozmviyu5');
         var newRow = table.insertRow(i);
         var newCell = newRow.insertCell(0);
         newCell.setAttribute("colspan", colspan);
@@ -497,8 +372,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         // this may be unsafe, but innerText does not interpret <br>
         newCell.innerHTML = content;
       }
-      function spanCell_8hcdcm0mwqfjq1rr8pos(i, j, rowspan, colspan) {
-        var table = document.getElementById("tinytable_8hcdcm0mwqfjq1rr8pos");
+      function spanCell_lpk5ak6rx469ozmviyu5(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_lpk5ak6rx469ozmviyu5");
         const targetRow = table.rows[i];
         const targetCell = targetRow.cells[j];
         for (let r = 0; r < rowspan; r++) {
@@ -528,19 +403,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       window.addEventListener('load', function () {
           var cellsToStyle = [
             // tinytable style arrays after
-          { positions: [ { i: 0, j: 4 }, { i: 0, j: 3 }, { i: 0, j: 6 }, { i: 0, j: 5 },  ], css_id: 'tinytable_css_1v3zjaazapms0yurkarm',}, 
-          { positions: [ { i: 2, j: 1 }, { i: 2, j: 2 }, { i: 2, j: 5 }, { i: 2, j: 4 }, { i: 2, j: 3 }, { i: 2, j: 6 },  ], css_id: 'tinytable_css_txv54hfq340wd8onhy1l',}, 
-          { positions: [ { i: 0, j: 1 }, { i: 0, j: 2 },  ], css_id: 'tinytable_css_yrmzsooqbwrvcmph62nb',}, 
-          { positions: [ { i: 1, j: 1 }, { i: 1, j: 4 }, { i: 1, j: 3 }, { i: 1, j: 2 }, { i: 1, j: 5 }, { i: 1, j: 6 },  ], css_id: 'tinytable_css_v2l180sp328w6il88tpx',}, 
-          { positions: [ { i: 2, j: 0 },  ], css_id: 'tinytable_css_m728hqo49pkp856m9saa',}, 
-          { positions: [ { i: 0, j: 0 },  ], css_id: 'tinytable_css_vaxbqbzf0sxv6hwcp2se',}, 
-          { positions: [ { i: 1, j: 0 },  ], css_id: 'tinytable_css_k15tketzrvsl1oepi2gt',}, 
+          { positions: [ { i: 17, j: 6 }, { i: 17, j: 3 }, { i: 17, j: 4 }, { i: 17, j: 1 }, { i: 17, j: 7 }, { i: 17, j: 0 }, { i: 17, j: 2 }, { i: 17, j: 5 }, { i: 17, j: 8 },  ], css_id: 'tinytable_css_fbxpqsl1ap6ieji3s53u',}, 
+          { positions: [ { i: 4, j: 0 }, { i: 8, j: 0 }, { i: 9, j: 0 }, { i: 12, j: 0 }, { i: 13, j: 0 }, { i: 1, j: 0 }, { i: 3, j: 0 }, { i: 16, j: 0 }, { i: 3, j: 3 }, { i: 5, j: 0 }, { i: 7, j: 0 }, { i: 2, j: 1 }, { i: 3, j: 1 }, { i: 4, j: 1 }, { i: 2, j: 0 }, { i: 11, j: 0 }, { i: 7, j: 1 }, { i: 8, j: 1 }, { i: 9, j: 1 }, { i: 15, j: 0 }, { i: 11, j: 1 }, { i: 12, j: 1 }, { i: 13, j: 1 }, { i: 1, j: 1 }, { i: 15, j: 1 }, { i: 16, j: 1 }, { i: 3, j: 4 }, { i: 5, j: 1 }, { i: 1, j: 2 }, { i: 2, j: 2 }, { i: 3, j: 2 }, { i: 4, j: 2 }, { i: 5, j: 2 }, { i: 6, j: 2 }, { i: 7, j: 2 }, { i: 8, j: 2 }, { i: 9, j: 2 }, { i: 6, j: 0 }, { i: 11, j: 2 }, { i: 12, j: 2 }, { i: 13, j: 2 }, { i: 10, j: 0 }, { i: 15, j: 2 }, { i: 16, j: 2 }, { i: 3, j: 5 }, { i: 14, j: 0 }, { i: 1, j: 3 }, { i: 2, j: 3 }, { i: 7, j: 5 }, { i: 4, j: 3 }, { i: 5, j: 3 }, { i: 6, j: 3 }, { i: 7, j: 3 }, { i: 8, j: 3 }, { i: 9, j: 3 }, { i: 6, j: 1 }, { i: 11, j: 3 }, { i: 12, j: 3 }, { i: 13, j: 3 }, { i: 10, j: 1 }, { i: 15, j: 3 }, { i: 16, j: 3 }, { i: 3, j: 6 }, { i: 14, j: 1 }, { i: 1, j: 4 }, { i: 2, j: 4 }, { i: 7, j: 6 }, { i: 4, j: 4 }, { i: 5, j: 4 }, { i: 6, j: 4 }, { i: 7, j: 4 }, { i: 8, j: 4 }, { i: 9, j: 4 }, { i: 10, j: 4 }, { i: 11, j: 4 }, { i: 12, j: 4 }, { i: 13, j: 4 }, { i: 10, j: 2 }, { i: 15, j: 4 }, { i: 16, j: 4 }, { i: 3, j: 7 }, { i: 14, j: 2 }, { i: 1, j: 5 }, { i: 2, j: 5 }, { i: 7, j: 7 }, { i: 4, j: 5 }, { i: 5, j: 5 }, { i: 6, j: 5 }, { i: 11, j: 7 }, { i: 8, j: 5 }, { i: 9, j: 5 }, { i: 10, j: 5 }, { i: 11, j: 5 }, { i: 12, j: 5 }, { i: 13, j: 5 }, { i: 10, j: 3 }, { i: 15, j: 5 }, { i: 16, j: 5 }, { i: 3, j: 8 }, { i: 14, j: 3 }, { i: 1, j: 6 }, { i: 2, j: 6 }, { i: 7, j: 8 }, { i: 4, j: 6 }, { i: 5, j: 6 }, { i: 6, j: 6 }, { i: 11, j: 8 }, { i: 8, j: 6 }, { i: 9, j: 6 }, { i: 10, j: 6 }, { i: 11, j: 6 }, { i: 12, j: 6 }, { i: 13, j: 6 }, { i: 14, j: 6 }, { i: 15, j: 6 }, { i: 16, j: 6 }, { i: 12, j: 7 }, { i: 14, j: 4 }, { i: 1, j: 7 }, { i: 2, j: 7 }, { i: 16, j: 7 }, { i: 4, j: 7 }, { i: 5, j: 7 }, { i: 6, j: 7 }, { i: 2, j: 8 }, { i: 8, j: 7 }, { i: 9, j: 7 }, { i: 10, j: 7 }, { i: 6, j: 8 }, { i: 15, j: 8 }, { i: 13, j: 7 }, { i: 14, j: 7 }, { i: 15, j: 7 }, { i: 10, j: 8 }, { i: 12, j: 8 }, { i: 14, j: 5 }, { i: 1, j: 8 }, { i: 14, j: 8 }, { i: 16, j: 8 }, { i: 4, j: 8 }, { i: 5, j: 8 }, { i: 8, j: 8 }, { i: 9, j: 8 }, { i: 13, j: 8 },  ], css_id: 'tinytable_css_72asabdmpuwdekwy2qkj',}, 
+          { positions: [ { i: 0, j: 0 }, { i: 0, j: 3 }, { i: 0, j: 6 }, { i: 0, j: 8 }, { i: 0, j: 1 }, { i: 0, j: 7 }, { i: 0, j: 4 }, { i: 0, j: 5 }, { i: 0, j: 2 },  ], css_id: 'tinytable_css_qtjd3y2qrlg4lj8mjtva',}, 
           ];
 
           // Loop over the arrays to style the cells
           cellsToStyle.forEach(function (group) {
               group.positions.forEach(function (cell) {
-                  styleCell_8hcdcm0mwqfjq1rr8pos(cell.i, cell.j, group.css_id);
+                  styleCell_lpk5ak6rx469ozmviyu5(cell.i, cell.j, group.css_id);
               });
           });
       });
@@ -548,45 +419,214 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
     <style>
       /* tinytable css entries after */
-      .table td.tinytable_css_1v3zjaazapms0yurkarm, .table th.tinytable_css_1v3zjaazapms0yurkarm { text-align: right; text-align: center; border-top: solid #d3d8dc 0.1em; text-align: center; }
-      .table td.tinytable_css_txv54hfq340wd8onhy1l, .table th.tinytable_css_txv54hfq340wd8onhy1l { text-align: right; border-bottom: solid #d3d8dc 0.1em; }
-      .table td.tinytable_css_yrmzsooqbwrvcmph62nb, .table th.tinytable_css_yrmzsooqbwrvcmph62nb { text-align: right; text-align: center; border-top: solid #d3d8dc 0.1em; text-align: center; border-bottom: solid #d3d8dc 0.05em; }
-      .table td.tinytable_css_v2l180sp328w6il88tpx, .table th.tinytable_css_v2l180sp328w6il88tpx { text-align: right; border-bottom: solid #d3d8dc 0.05em; }
-      .table td.tinytable_css_m728hqo49pkp856m9saa, .table th.tinytable_css_m728hqo49pkp856m9saa { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
-      .table td.tinytable_css_vaxbqbzf0sxv6hwcp2se, .table th.tinytable_css_vaxbqbzf0sxv6hwcp2se { text-align: left; text-align: center; border-top: solid #d3d8dc 0.1em; text-align: center; }
-      .table td.tinytable_css_k15tketzrvsl1oepi2gt, .table th.tinytable_css_k15tketzrvsl1oepi2gt { text-align: left; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_fbxpqsl1ap6ieji3s53u, .table th.tinytable_css_fbxpqsl1ap6ieji3s53u { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_72asabdmpuwdekwy2qkj, .table th.tinytable_css_72asabdmpuwdekwy2qkj { text-align: left; }
+      .table td.tinytable_css_qtjd3y2qrlg4lj8mjtva, .table th.tinytable_css_qtjd3y2qrlg4lj8mjtva { text-align: left; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
     </style>
     <div class="container">
-      <table class="table table-borderless" id="tinytable_8hcdcm0mwqfjq1rr8pos" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+      <table class="table table-borderless" id="tinytable_lpk5ak6rx469ozmviyu5" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
         <thead>
-<tr>
-<th scope="col" align="center" colspan="1"> </th>
-<th scope="col" align="center" colspan="2">1 Conventional (N=1000)</th>
-<th scope="col" align="center" colspan="2">2 Recentered (N=1000)</th>
-<th scope="col" align="center" colspan="1"> </th>
-<th scope="col" align="center" colspan="1"> </th>
-</tr>
         
               <tr>
                 <th scope="col"> </th>
+                <th scope="col">Unique</th>
+                <th scope="col">Missing Pct.</th>
                 <th scope="col">Mean</th>
-                <th scope="col">Std. Dev.</th>
-                <th scope="col">Mean</th>
-                <th scope="col">Std. Dev.</th>
-                <th scope="col">Diff. in Means</th>
-                <th scope="col">p</th>
+                <th scope="col">SD</th>
+                <th scope="col">Min</th>
+                <th scope="col">Median</th>
+                <th scope="col">Max</th>
+                <th scope="col">Histogram</th>
               </tr>
         </thead>
         
         <tbody>
                 <tr>
-                  <td>bias</td>
-                  <td>-0.039</td>
-                  <td>0.010</td>
-                  <td>-0.010</td>
-                  <td>0.010</td>
-                  <td>0.028</td>
-                  <td>0.000</td>
+                  <td>id_mother</td>
+                  <td>70000</td>
+                  <td>0</td>
+                  <td>35000.5</td>
+                  <td>20207.4</td>
+                  <td>1.0</td>
+                  <td>35000.5</td>
+                  <td>70000.0</td>
+                  <td><img src="./tinytable_assets/idws6qkp3nebktbyxofmmz.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>id_district</td>
+                  <td>500</td>
+                  <td>0</td>
+                  <td>249.8</td>
+                  <td>144.6</td>
+                  <td>1.0</td>
+                  <td>250.0</td>
+                  <td>500.0</td>
+                  <td><img src="./tinytable_assets/idrrnb1bjvvc0tl32ylbt7.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_age</td>
+                  <td>22</td>
+                  <td>0</td>
+                  <td>23.2</td>
+                  <td>3.7</td>
+                  <td>18.0</td>
+                  <td>23.0</td>
+                  <td>40.0</td>
+                  <td><img src="./tinytable_assets/id7o040e13d1p2d8ss991w.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_parity</td>
+                  <td>2</td>
+                  <td>0</td>
+                  <td>1.5</td>
+                  <td>0.5</td>
+                  <td>1.0</td>
+                  <td>1.0</td>
+                  <td>2.0</td>
+                  <td><img src="./tinytable_assets/idygi4eg1ebz4csfgsst0b.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_schooling</td>
+                  <td>17</td>
+                  <td>0</td>
+                  <td>13.6</td>
+                  <td>2.0</td>
+                  <td>6.0</td>
+                  <td>14.0</td>
+                  <td>22.0</td>
+                  <td><img src="./tinytable_assets/idx6n61x7azyg8ck1qw0eg.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_income</td>
+                  <td>51792</td>
+                  <td>0</td>
+                  <td>268058.0</td>
+                  <td>30080.7</td>
+                  <td>137787.0</td>
+                  <td>267802.0</td>
+                  <td>388663.0</td>
+                  <td><img src="./tinytable_assets/idrnk0gjw4ry8b69yl1l7c.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_gm_lsupply</td>
+                  <td>69996</td>
+                  <td>0</td>
+                  <td>20.0</td>
+                  <td>5.0</td>
+                  <td>0.0</td>
+                  <td>20.0</td>
+                  <td>44.9</td>
+                  <td><img src="./tinytable_assets/idxex93h3f7fcelz2q14en.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_quarter</td>
+                  <td>32</td>
+                  <td>0</td>
+                  <td>2013.8</td>
+                  <td>2.3</td>
+                  <td>2010.1</td>
+                  <td>2014.1</td>
+                  <td>2017.4</td>
+                  <td><img src="./tinytable_assets/id3xhlp3rso1dlyx28cdha.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_month</td>
+                  <td>12</td>
+                  <td>0</td>
+                  <td>6.5</td>
+                  <td>3.5</td>
+                  <td>1.0</td>
+                  <td>7.0</td>
+                  <td>12.0</td>
+                  <td><img src="./tinytable_assets/id71327fz8zg44i3rx4m6k.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_year</td>
+                  <td>8</td>
+                  <td>0</td>
+                  <td>2013.5</td>
+                  <td>2.3</td>
+                  <td>2010.0</td>
+                  <td>2014.0</td>
+                  <td>2017.0</td>
+                  <td><img src="./tinytable_assets/iddrno07qtufqc6h0q9ts8.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_young</td>
+                  <td>2</td>
+                  <td>0</td>
+                  <td>0.9</td>
+                  <td>0.2</td>
+                  <td>0.0</td>
+                  <td>1.0</td>
+                  <td>1.0</td>
+                  <td><img src="./tinytable_assets/idbxstf48z9g9iymn9p0qx.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_age5</td>
+                  <td>6</td>
+                  <td>0</td>
+                  <td>21.0</td>
+                  <td>4.2</td>
+                  <td>15.0</td>
+                  <td>20.0</td>
+                  <td>40.0</td>
+                  <td><img src="./tinytable_assets/idgqnbxnp5i43f4v3barkd.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_schooling_g</td>
+                  <td>59</td>
+                  <td>0</td>
+                  <td>13.6</td>
+                  <td>1.4</td>
+                  <td>8.5</td>
+                  <td>13.5</td>
+                  <td>19.2</td>
+                  <td><img src="./tinytable_assets/idi9weqeg7miboyedr0vru.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_income_g</td>
+                  <td>62282</td>
+                  <td>0</td>
+                  <td>268056.3</td>
+                  <td>19947.6</td>
+                  <td>184682.5</td>
+                  <td>267960.1</td>
+                  <td>365192.0</td>
+                  <td><img src="./tinytable_assets/idyyb2s2mdtry4j6tbihyq.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_gm_lsupply_g</td>
+                  <td>69907</td>
+                  <td>0</td>
+                  <td>20.0</td>
+                  <td>2.6</td>
+                  <td>7.6</td>
+                  <td>20.0</td>
+                  <td>30.3</td>
+                  <td><img src="./tinytable_assets/idew3qk4kxfq5jfg9r7024.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>x_lsupply_g</td>
+                  <td>69903</td>
+                  <td>0</td>
+                  <td>26.0</td>
+                  <td>2.6</td>
+                  <td>11.3</td>
+                  <td>26.0</td>
+                  <td>39.2</td>
+                  <td><img src="./tinytable_assets/id8807kxod8bxtp5bysqvp.png" style="height: 1em;"></td>
+                </tr>
+                <tr>
+                  <td>y_lsupply</td>
+                  <td>66604</td>
+                  <td>0</td>
+                  <td>31.1</td>
+                  <td>5.1</td>
+                  <td>10.2</td>
+                  <td>31.2</td>
+                  <td>40.0</td>
+                  <td><img src="./tinytable_assets/id6ttzs0ndqx5dslfwdgkk.png" style="height: 1em;"></td>
                 </tr>
         </tbody>
       </table>
@@ -594,20 +634,733 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- hack to avoid NA insertion in last line -->
 </div>
 </div>
-<p>Show chart</p>
+</section>
+</section>
+</section>
+<section id="check-for-balance" class="level1">
+<h1>4 Check for balance</h1>
+<section id="the-traditional-balance-check." class="level2">
+<h2 class="anchored" data-anchor-id="the-traditional-balance-check.">4.1 The traditional balance check.</h2>
+<p>We want to know whether group peers are as-good-as-random assignment. Our key variable is labour supply. So let us check whether the average grand mother labour supply is related to our own mother’s labour supply. It should not be (once we adjust for assignment to group variables). We run three regressions</p>
+<ol type="1">
+<li><p>Own grandmother labor supply on average peer grand mother labor supply</p></li>
+<li><p>Own grandmother labor supply on average peer grand mother labor supply, conditional on district and mother age fixed effects.</p></li>
+<li><p>Own grandmother labor supply on average peer grand mother labor supply, conditional on district, mother age, child quarter of birth and parity fixed effects.</p></li>
+</ol>
+<div class="cell" data-hash="mother_group_DGP_cache/html/balance_reg_approach_reg_2d8df5401901720b9913f93bdda7d58b">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>m1<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_g,<span class="at">data=</span>df)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>m2<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_g<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>m3<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_g<span class="sc">|</span>id_district<span class="sc">+</span>x_age5<span class="sc">+</span>x_quarter<span class="sc">+</span>x_parity,<span class="at">data=</span>df)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(<span class="fu">list</span>(m1,m2,m3),</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">coef_omit =</span> <span class="st">"Intercept"</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>              <span class="at">stars =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+
+<!-- preamble start -->
+
+    <script>
+
+      function styleCell_ghkp13gi290nj32awykj(i, j, css_id) {
+          var table = document.getElementById("tinytable_ghkp13gi290nj32awykj");
+          var cell = table.rows[i]?.cells[j];  // Safe navigation to avoid errors
+          if (cell) {
+              console.log(`Styling cell at (${i}, ${j}) with class ${css_id}`);
+              cell.classList.add(css_id);
+          } else {
+              console.warn(`Cell at (${i}, ${j}) not found.`);
+          }
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_ghkp13gi290nj32awykj');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_ghkp13gi290nj32awykj(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_ghkp13gi290nj32awykj");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: 15, j: 2 }, { i: 15, j: 1 }, { i: 15, j: 3 },  ], css_id: 'tinytable_css_2f8vah0nccug3086vcgq',}, 
+          { positions: [ { i: 2, j: 1 }, { i: 2, j: 2 }, { i: 2, j: 3 },  ], css_id: 'tinytable_css_rqawu7y35yzsm6v5mepl',}, 
+          { positions: [ { i: 1, j: 1 }, { i: 4, j: 1 }, { i: 5, j: 1 }, { i: 12, j: 2 }, { i: 7, j: 1 }, { i: 8, j: 1 }, { i: 9, j: 1 }, { i: 10, j: 1 }, { i: 11, j: 1 }, { i: 12, j: 1 }, { i: 13, j: 1 }, { i: 14, j: 1 }, { i: 9, j: 3 }, { i: 3, j: 1 }, { i: 1, j: 2 }, { i: 12, j: 3 }, { i: 6, j: 1 }, { i: 4, j: 2 }, { i: 5, j: 2 }, { i: 6, j: 2 }, { i: 7, j: 2 }, { i: 8, j: 2 }, { i: 9, j: 2 }, { i: 10, j: 2 }, { i: 11, j: 2 }, { i: 3, j: 2 }, { i: 13, j: 2 }, { i: 14, j: 2 }, { i: 3, j: 3 }, { i: 4, j: 3 }, { i: 1, j: 3 }, { i: 6, j: 3 }, { i: 7, j: 3 }, { i: 8, j: 3 }, { i: 5, j: 3 }, { i: 10, j: 3 }, { i: 11, j: 3 }, { i: 13, j: 3 }, { i: 14, j: 3 },  ], css_id: 'tinytable_css_vbby1ufrxk86d3260kdq',}, 
+          { positions: [ { i: 0, j: 1 }, { i: 0, j: 3 }, { i: 0, j: 2 },  ], css_id: 'tinytable_css_zkqitewh6ap9y6jtko31',}, 
+          { positions: [ { i: 15, j: 0 },  ], css_id: 'tinytable_css_4wn1e5osai64ze57bbeh',}, 
+          { positions: [ { i: 2, j: 0 },  ], css_id: 'tinytable_css_ism2vxi94169zsjzeo6f',}, 
+          { positions: [ { i: 1, j: 0 }, { i: 6, j: 0 }, { i: 3, j: 0 }, { i: 4, j: 0 }, { i: 5, j: 0 }, { i: 10, j: 0 }, { i: 7, j: 0 }, { i: 8, j: 0 }, { i: 9, j: 0 }, { i: 14, j: 0 }, { i: 11, j: 0 }, { i: 12, j: 0 }, { i: 13, j: 0 },  ], css_id: 'tinytable_css_3nl1otcrxkhx6eep9fjj',}, 
+          { positions: [ { i: 0, j: 0 },  ], css_id: 'tinytable_css_iw8znv6ltiirzv68td9e',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  styleCell_ghkp13gi290nj32awykj(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <style>
+      /* tinytable css entries after */
+      .table td.tinytable_css_2f8vah0nccug3086vcgq, .table th.tinytable_css_2f8vah0nccug3086vcgq { text-align: center; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_rqawu7y35yzsm6v5mepl, .table th.tinytable_css_rqawu7y35yzsm6v5mepl { text-align: center; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_vbby1ufrxk86d3260kdq, .table th.tinytable_css_vbby1ufrxk86d3260kdq { text-align: center; }
+      .table td.tinytable_css_zkqitewh6ap9y6jtko31, .table th.tinytable_css_zkqitewh6ap9y6jtko31 { text-align: center; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+      .table td.tinytable_css_4wn1e5osai64ze57bbeh, .table th.tinytable_css_4wn1e5osai64ze57bbeh { text-align: left; border-bottom: solid #d3d8dc 0.1em; }
+      .table td.tinytable_css_ism2vxi94169zsjzeo6f, .table th.tinytable_css_ism2vxi94169zsjzeo6f { text-align: left; border-bottom: solid black 0.05em; }
+      .table td.tinytable_css_3nl1otcrxkhx6eep9fjj, .table th.tinytable_css_3nl1otcrxkhx6eep9fjj { text-align: left; }
+      .table td.tinytable_css_iw8znv6ltiirzv68td9e, .table th.tinytable_css_iw8znv6ltiirzv68td9e { text-align: left; border-top: solid #d3d8dc 0.1em; border-bottom: solid #d3d8dc 0.05em; }
+    </style>
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_ghkp13gi290nj32awykj" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">(1)</th>
+                <th scope="col">(2)</th>
+                <th scope="col">(3)</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="4">+ p &lt; 0.1, * p &lt; 0.05, ** p &lt; 0.01, *** p &lt; 0.001</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td>x_gm_lsupply_g</td>
+                  <td>0.038***</td>
+                  <td>-0.023+</td>
+                  <td>-0.023*</td>
+                </tr>
+                <tr>
+                  <td></td>
+                  <td>(0.007)</td>
+                  <td>(0.012)</td>
+                  <td>(0.012)</td>
+                </tr>
+                <tr>
+                  <td>Num.Obs.</td>
+                  <td>69906</td>
+                  <td>69906</td>
+                  <td>69906</td>
+                </tr>
+                <tr>
+                  <td>R2</td>
+                  <td>0.000</td>
+                  <td>0.018</td>
+                  <td>0.019</td>
+                </tr>
+                <tr>
+                  <td>R2 Adj.</td>
+                  <td>0.000</td>
+                  <td>0.011</td>
+                  <td>0.011</td>
+                </tr>
+                <tr>
+                  <td>R2 Within</td>
+                  <td></td>
+                  <td>0.000</td>
+                  <td>0.000</td>
+                </tr>
+                <tr>
+                  <td>R2 Within Adj.</td>
+                  <td></td>
+                  <td>0.000</td>
+                  <td>0.000</td>
+                </tr>
+                <tr>
+                  <td>AIC</td>
+                  <td>424759.7</td>
+                  <td>424506.1</td>
+                  <td>424534.8</td>
+                </tr>
+                <tr>
+                  <td>BIC</td>
+                  <td>424778.0</td>
+                  <td>429138.5</td>
+                  <td>429460.1</td>
+                </tr>
+                <tr>
+                  <td>RMSE</td>
+                  <td>5.05</td>
+                  <td>5.00</td>
+                  <td>5.00</td>
+                </tr>
+                <tr>
+                  <td>Std.Errors</td>
+                  <td>IID</td>
+                  <td>by: id_district</td>
+                  <td>by: id_district</td>
+                </tr>
+                <tr>
+                  <td>FE: id_district</td>
+                  <td></td>
+                  <td>X</td>
+                  <td>X</td>
+                </tr>
+                <tr>
+                  <td>FE: x_age5</td>
+                  <td></td>
+                  <td>X</td>
+                  <td>X</td>
+                </tr>
+                <tr>
+                  <td>FE: x_quarter</td>
+                  <td></td>
+                  <td></td>
+                  <td>X</td>
+                </tr>
+                <tr>
+                  <td>FE: x_parity</td>
+                  <td></td>
+                  <td></td>
+                  <td>X</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>We observe</p>
+<ul>
+<li><p>In the raw specification (column (1)), there is a significant positive corellation, as we would expect.</p></li>
+<li><p>Once we condition on fixed effects the correlation becomes negative and significant. This is also what we would expect, given the exclusion bias issue. And remember in this case we <em>know that assignment is only based on the variables we condition on</em>!</p></li>
+</ul>
+</section>
+<section id="an-alternative-approach-check-distribution-of-p-values" class="level2">
+<h2 class="anchored" data-anchor-id="an-alternative-approach-check-distribution-of-p-values">4.2 An alternative approach: check distribution of p-values!</h2>
+<p>We now test the use of an alternative approach, where we check whether mother group indicators can predict mother groups within the cells where the assignment is done. So basically the idea is that once we only look with a district at similar aged mothers, similar parity and similar child dob, the exact group you get assigned to should be random. Therefore, running a regression of own characteristics on indicators for mother groups, the p-value on the joint F-test for the hypothesis that all indicators could be excluded should be uniformly distributed.</p>
+<section id="by-district-only" class="level3">
+<h3 class="anchored" data-anchor-id="by-district-only">4.2.1 By district only</h3>
+<p>First we assume that the assignment cell is district We first loop over cells and districts and run all possible regressions and save the p-values.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/approach2-cell-is-district_cfad7beb1d896b3ad801935a95f2af48">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># datafarme to save results</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_results<span class="ot">&lt;-</span><span class="fu">data.table</span>(<span class="at">id_district=</span><span class="fu">rep</span>(<span class="fu">unique</span>(df<span class="sc">$</span>id_district),<span class="at">times=</span><span class="dv">4</span>),</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                       <span class="at">p=</span><span class="cn">NA</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                       <span class="at">var=</span><span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"x_schooling"</span>,<span class="st">"x_income"</span>,<span class="st">"x_age"</span>, <span class="st">"x_gm_lsupply"</span>, <span class="st">"x_parity"</span>),<span class="at">each=</span><span class="fu">length</span>(<span class="fu">rep</span>(<span class="fu">unique</span>(df<span class="sc">$</span>id_district))))</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>                               )</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over variables</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"x_schooling"</span>,<span class="st">"x_income"</span>,<span class="st">"x_age"</span>, <span class="st">"x_gm_lsupply"</span>, <span class="st">"x_parity"</span>)){</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop over all districts:</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">unique</span>(df<span class="sc">$</span>id_district)){</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># select sample</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    filtered_df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>id_district<span class="sc">==</span> i, ]</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>     </span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Model without fixed effects</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    mod1 <span class="ot">&lt;-</span> <span class="fu">feols</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(v, <span class="st">"~ 1"</span>)), <span class="at">data =</span> filtered_df)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Model with fixed effects</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>    mod2 <span class="ot">&lt;-</span> <span class="fu">feols</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(v, <span class="st">"~ 1 | id_mother_group"</span>)), <span class="at">data =</span> filtered_df)</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Get residual sum of squares</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>    rss1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(mod1)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>    rss2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(mod2)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get degrees of freedom</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>    df1 <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(mod1)</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>    df2 <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(mod2)</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute F-statistic</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    num_df <span class="ot">&lt;-</span> df1 <span class="sc">-</span> df2  <span class="co"># numerator degrees of freedom (number of added params)</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>    den_df <span class="ot">&lt;-</span> df2        <span class="co"># denominator degrees of freedom</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    f_stat <span class="ot">&lt;-</span> ((rss1 <span class="sc">-</span> rss2) <span class="sc">/</span> num_df) <span class="sc">/</span> (rss2 <span class="sc">/</span> den_df)</span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Compute p-value</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>    pval <span class="ot">&lt;-</span> <span class="fu">pf</span>(f_stat, df1 <span class="sc">-</span> df2, df2, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store results</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>    df_results<span class="sc">$</span>p[df_results<span class="sc">$</span>id_district <span class="sc">==</span> i <span class="sc">&amp;</span> df_results<span class="sc">$</span>var <span class="sc">==</span> v] <span class="ot">&lt;-</span> pval</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(v)</span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x_schooling"
+[1] "x_income"
+[1] "x_age"
+[1] "x_gm_lsupply"
+[1] "x_parity"</code></pre>
+</div>
+</div>
+<p>As we now have the data, we can look at plots of the p-values</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/approach2-cell-is-district-vis_c263422c90fa04c06246f8edd9a0d35d">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by var and p</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">setorder</span>(df_results, var, p)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute relative rank within each var group</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df_results[, relrank <span class="sc">:</span><span class="er">=</span> <span class="fu">rank</span>(p, <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">/</span> .N, by <span class="ot">=</span> var]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>vis1<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_results, <span class="fu">aes</span>(<span class="at">x =</span> relrank, <span class="at">y =</span> p, <span class="at">color =</span> var)) <span class="sc">+</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>   <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="dv">0</span>, <span class="at">xend =</span> <span class="dv">1</span>, <span class="at">y =</span> <span class="dv">0</span>, <span class="at">yend =</span><span class="dv">1</span>),<span class="at">color=</span><span class="st">"black"</span>)<span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Relative Rank"</span>, <span class="at">y =</span> <span class="st">"p-value"</span>, <span class="at">color =</span> <span class="st">"Variable"</span>) <span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(a) assignment by district"</span>)<span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>vis1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/approach2-cell-is-district-vis-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>If the p-values are uniformly distributed all lines should be 45 degree lines. They are clearly not.</p>
+</section>
+<section id="by-district-and-age" class="level3">
+<h3 class="anchored" data-anchor-id="by-district-and-age">4.2.2 By district and age</h3>
+<p>We now repeat the exercise by age and district groups</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/approach2-cell-is-district-and-age_69105d3ac1deedba815553b0601ce13d">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>df[, group <span class="sc">:</span><span class="er">=</span> .GRP, by <span class="ot">=</span> .(id_district,x_age5)]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># datafarme to save results</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>df_results<span class="ot">&lt;-</span><span class="fu">data.table</span>(<span class="at">group=</span><span class="fu">rep</span>(<span class="fu">unique</span>(df<span class="sc">$</span>group),<span class="at">times=</span><span class="dv">5</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>                       <span class="at">p=</span><span class="cn">NA</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>                       <span class="at">var=</span><span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"x_schooling"</span>,<span class="st">"x_income"</span>,<span class="st">"x_age"</span>, <span class="st">"x_gm_lsupply"</span>,<span class="st">"x"</span>, <span class="st">"x_parity"</span>),<span class="at">each=</span><span class="fu">length</span>(<span class="fu">rep</span>(<span class="fu">unique</span>(df<span class="sc">$</span>group))))</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                               )</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Loop over variables</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (v <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"x_schooling"</span>,<span class="st">"x_income"</span>,<span class="st">"x_age"</span>, <span class="st">"x_gm_lsupply"</span>)){</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Loop over all districts:</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">unique</span>(df<span class="sc">$</span>group)){</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="co"># select sample</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>    filtered_df <span class="ot">&lt;-</span> df[df<span class="sc">$</span>group<span class="sc">==</span> i, ]</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Skip if the variable is constant or NA</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    y <span class="ot">&lt;-</span> filtered_df[[v]]</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">unique</span>(filtered_df<span class="sc">$</span>id_mother_group)) <span class="sc">&lt;</span><span class="dv">10</span>) <span class="cf">next</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(<span class="fu">unique</span>(y[<span class="sc">!</span><span class="fu">is.na</span>(y)])) <span class="sc">&lt;=</span> <span class="dv">1</span>) <span class="cf">next</span>  <span class="co"># Skip constant or all-NA</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Model without fixed effects</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    mod1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(v, <span class="st">"~ 1"</span>)), <span class="at">data =</span> filtered_df)</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Model with fixed effects</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    mod2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="fu">as.formula</span>(<span class="fu">paste</span>(v, <span class="st">"~ factor(id_mother_group)"</span>)), <span class="at">data =</span> filtered_df)</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compare models</span></span>
+<span id="cb12-29"><a href="#cb12-29" aria-hidden="true" tabindex="-1"></a>   <span class="co"># Get residual sum of squares</span></span>
+<span id="cb12-30"><a href="#cb12-30" aria-hidden="true" tabindex="-1"></a>    rss1 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(mod1)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb12-31"><a href="#cb12-31" aria-hidden="true" tabindex="-1"></a>    rss2 <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">resid</span>(mod2)<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb12-32"><a href="#cb12-32" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-33"><a href="#cb12-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Get degrees of freedom</span></span>
+<span id="cb12-34"><a href="#cb12-34" aria-hidden="true" tabindex="-1"></a>    df1 <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(mod1)</span>
+<span id="cb12-35"><a href="#cb12-35" aria-hidden="true" tabindex="-1"></a>    df2 <span class="ot">&lt;-</span> <span class="fu">df.residual</span>(mod2)</span>
+<span id="cb12-36"><a href="#cb12-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-37"><a href="#cb12-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute F-statistic</span></span>
+<span id="cb12-38"><a href="#cb12-38" aria-hidden="true" tabindex="-1"></a>    num_df <span class="ot">&lt;-</span> df1 <span class="sc">-</span> df2  <span class="co"># numerator degrees of freedom (number of added params)</span></span>
+<span id="cb12-39"><a href="#cb12-39" aria-hidden="true" tabindex="-1"></a>    den_df <span class="ot">&lt;-</span> df2        <span class="co"># denominator degrees of freedom</span></span>
+<span id="cb12-40"><a href="#cb12-40" aria-hidden="true" tabindex="-1"></a>    f_stat <span class="ot">&lt;-</span> ((rss1 <span class="sc">-</span> rss2) <span class="sc">/</span> num_df) <span class="sc">/</span> (rss2 <span class="sc">/</span> den_df)</span>
+<span id="cb12-41"><a href="#cb12-41" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb12-42"><a href="#cb12-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Compute p-value</span></span>
+<span id="cb12-43"><a href="#cb12-43" aria-hidden="true" tabindex="-1"></a>    pval <span class="ot">&lt;-</span> <span class="fu">pf</span>(f_stat, df1 <span class="sc">-</span> df2, df2, <span class="at">lower.tail =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-44"><a href="#cb12-44" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store results</span></span>
+<span id="cb12-45"><a href="#cb12-45" aria-hidden="true" tabindex="-1"></a>    df_results<span class="sc">$</span>p[df_results<span class="sc">$</span>group <span class="sc">==</span> i <span class="sc">&amp;</span> df_results<span class="sc">$</span>var <span class="sc">==</span> v] <span class="ot">&lt;-</span> pval</span>
+<span id="cb12-46"><a href="#cb12-46" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb12-47"><a href="#cb12-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(v)</span>
+<span id="cb12-48"><a href="#cb12-48" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x_schooling"
+[1] "x_income"
+[1] "x_age"
+[1] "x_gm_lsupply"</code></pre>
+</div>
+</div>
+<p>We now create a plot, like before:</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/approach2-cell-is-district-and-age-vis_bb6111a6145d11b7aef2e9ef14ae203f">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows with NA in p</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>df_results <span class="ot">&lt;-</span> df_results[<span class="sc">!</span><span class="fu">is.na</span>(p)]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Sort by var and p</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="fu">setorder</span>(df_results, var, p)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute relative rank within each var group</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>df_results[, relrank <span class="sc">:</span><span class="er">=</span> <span class="fu">rank</span>(p, <span class="at">ties.method =</span> <span class="st">"first"</span>) <span class="sc">/</span> .N, by <span class="ot">=</span> var]</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>vis2<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_results, <span class="fu">aes</span>(<span class="at">x =</span> relrank, <span class="at">y =</span> p, <span class="at">color =</span> var)) <span class="sc">+</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Relative Rank"</span>, <span class="at">y =</span> <span class="st">"p-value"</span>, <span class="at">color =</span> <span class="st">"Variable"</span>) <span class="sc">+</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span><span class="fu">ylim</span>(<span class="dv">0</span>,<span class="dv">1</span>)<span class="sc">+</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(b) assignment by district &amp; age5"</span>)<span class="sc">+</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>vis2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/approach2-cell-is-district-and-age-vis-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>And now it is perfectly blanced. Great! This suggests that it is fairly balanced condition on age and district, but we need to solve the exclusion bias issue.</p>
+</section>
+</section>
+</section>
+<section id="solving-the-exclusion-bias-issue" class="level1">
+<h1>5 Solving the exclusion bias issue</h1>
+<section id="illustrating-that-the-problem-is-real" class="level2">
+<h2 class="anchored" data-anchor-id="illustrating-that-the-problem-is-real">5.1 Illustrating that the problem is real</h2>
+<p>We only showed that in one regression, the coefficient on average peer grandmother labor supply becomes significantly negative, when we condition on district and age5. But this could just be random chance. Naturally, because we generate the data we could also just simulate N DGPs and show that this is not just by chance, but we cannot translate that assessment to the real data. To illustrate the problem more clearly, we therefore instead randomly reshuffle the mother groups and repeat the regression. In that regression the correlation should be 0 because we reshuffled and we can also do that on the real data.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/reshuffle-mother-groups-and-test_c7a72cab781e4017f61c78f608939e86">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Iterations</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>I<span class="ot">=</span><span class="dv">10000</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataset</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>df_sim<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">beta=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"Raw"</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="co"># random order</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  df[, random <span class="sc">:</span><span class="er">=</span><span class="fu">rnorm</span>(.N, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)]</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="co"># reorder</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setorder</span>(df, id_district, x_age5,random)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Assign groups</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  df[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  df[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  df[, id_mother_group_new <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recalculate leave one out mean</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>   df[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">n_group =</span> .N</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>    ), by <span class="ot">=</span> id_mother_group_new]</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>    df[, x_gm_lsupply_gshuffle <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save estimate</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>    res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_gshuffle<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract coefficient</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_gm_lsupply_gshuffle"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store beta-value in results dataset</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>    df_sim<span class="sc">$</span>beta[i] <span class="ot">&lt;-</span> beta</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Print</span></span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>             <span class="co">#  cat(paste(i,"\n"))</span></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>             <span class="co">#  cat("*")</span></span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Let is show the distribution in a chart.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(df,<span class="fu">aes</span>(<span class="at">x=</span>bias,<span class="at">group=</span>type,<span class="at">fill=</span>type))<span class="sc">+</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha=</span><span class="fl">0.2</span>)<span class="sc">+</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_d</span>() <span class="sc">+</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">labs</span>(<span class="at">color=</span><span class="st">" "</span>,<span class="at">fill=</span><span class="st">" "</span>)<span class="sc">+</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"top"</span>)<span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Store main</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>main<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_g<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">summary</span>(main)<span class="sc">$</span>coeftable[<span class="st">"x_gm_lsupply_g"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>fig1<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_sim,<span class="fu">aes</span>(<span class="at">x=</span>beta))<span class="sc">+</span><span class="fu">geom_histogram</span>(<span class="at">color=</span><span class="st">"black"</span>,<span class="at">fill=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span><span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.1</span>,<span class="fl">0.1</span>)<span class="sc">+</span><span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(a) raw"</span>)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>fig1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<p><img src="mother_group_DGP_files/figure-html/chart-bias-1.png" class="img-fluid" width="672"></p>
+<p><img src="mother_group_DGP_files/figure-html/balance-plot-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
+<p>The distribution is clearly not centered around 0, as we would expect!</p>
+</section>
+<section id="approach-1-control-for-pool-level" class="level2">
+<h2 class="anchored" data-anchor-id="approach-1-control-for-pool-level">5.2 Approach 1: control for pool level</h2>
+<p>The first approach uses the idea of controlling for the pool level. We simply control for leave one out average of grandmother labor supply in the entire district. One could also do it by district and age, but let us start by district.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/simulate-pool-control_686d8d26423981deeb4a924dacc7f66b">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Iterations</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>I<span class="ot">=</span><span class="dv">10000</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Dataset</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>df_sim_pool<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">beta=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"Raw"</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a> <span class="co"># Calculate pool level leave one out mean</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  df[, group <span class="sc">:</span><span class="er">=</span> .GRP, by <span class="ot">=</span> .(id_district)]</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>   df[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">n_group =</span> .N</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>    ), by <span class="ot">=</span> group]</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  df[, x_gm_lsupply_da <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="co"># random order</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  df[, random <span class="sc">:</span><span class="er">=</span><span class="fu">rnorm</span>(.N, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)]</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="co"># reorder</span></span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">setorder</span>(df, id_district, x_age5,random)</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Assign groups</span></span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  df[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  df[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  df[, id_mother_group_new <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
+<span id="cb17-25"><a href="#cb17-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Recalculate leave one out mean</span></span>
+<span id="cb17-26"><a href="#cb17-26" aria-hidden="true" tabindex="-1"></a>   df[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb17-27"><a href="#cb17-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb17-28"><a href="#cb17-28" aria-hidden="true" tabindex="-1"></a>      <span class="at">n_group =</span> .N</span>
+<span id="cb17-29"><a href="#cb17-29" aria-hidden="true" tabindex="-1"></a>    ), by <span class="ot">=</span> id_mother_group_new]</span>
+<span id="cb17-30"><a href="#cb17-30" aria-hidden="true" tabindex="-1"></a>    df[, x_gm_lsupply_gshuffle <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb17-31"><a href="#cb17-31" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-32"><a href="#cb17-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save estimate</span></span>
+<span id="cb17-33"><a href="#cb17-33" aria-hidden="true" tabindex="-1"></a>    res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_gshuffle<span class="sc">+</span>x_gm_lsupply_da<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb17-34"><a href="#cb17-34" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract coefficient</span></span>
+<span id="cb17-35"><a href="#cb17-35" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_gm_lsupply_gshuffle"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb17-36"><a href="#cb17-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store beta-value in results dataset</span></span>
+<span id="cb17-37"><a href="#cb17-37" aria-hidden="true" tabindex="-1"></a>    df_sim_pool<span class="sc">$</span>beta[i] <span class="ot">&lt;-</span> beta</span>
+<span id="cb17-38"><a href="#cb17-38" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-39"><a href="#cb17-39" aria-hidden="true" tabindex="-1"></a>      <span class="co"># Print</span></span>
+<span id="cb17-40"><a href="#cb17-40" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb17-41"><a href="#cb17-41" aria-hidden="true" tabindex="-1"></a>           <span class="co">#    cat(paste(i,"\n"))</span></span>
+<span id="cb17-42"><a href="#cb17-42" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb17-43"><a href="#cb17-43" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
+<span id="cb17-44"><a href="#cb17-44" aria-hidden="true" tabindex="-1"></a>           <span class="co">#    cat("*")</span></span>
+<span id="cb17-45"><a href="#cb17-45" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb17-46"><a href="#cb17-46" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb17-47"><a href="#cb17-47" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Let us</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>fig2<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_sim_pool,<span class="fu">aes</span>(<span class="at">x=</span>beta))<span class="sc">+</span><span class="fu">geom_histogram</span>(<span class="at">color=</span><span class="st">"black"</span>,<span class="at">fill=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span><span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(b) control for pool level"</span>)<span class="sc">+</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.025</span>,<span class="fl">0.025</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>fig1<span class="sc">+</span>fig2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/balance-plot-pool-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This clearly centers the distribution around 0! Great. That solution works.</p>
+</section>
+<section id="approach-2-recenter-variable-based-on-adding-variation-in-date-of-birth" class="level2">
+<h2 class="anchored" data-anchor-id="approach-2-recenter-variable-based-on-adding-variation-in-date-of-birth">5.3 Approach 2: recenter variable based on adding variation in date of birth</h2>
+<p>Let us know try the recentering approach. We could simply recenter by subtracting the pool level leave one out from the mother group leave one out. That should result in the same as above. However, we will know be more explicit about the pool level and instead simulate pools based on the mother groups you could be assigned to, by adding a bit of noise to the date of birth.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/recenter-sim-14_6f56968cf5b8000e05cf721e37feeda5">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Dataset for results</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  df_sim_recent<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">beta=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"Raw"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a> I<span class="ot">=</span><span class="dv">1000</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate random </span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  J<span class="ot">=</span><span class="dv">20</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>    df_test<span class="ot">&lt;-</span>df</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Empty data table to store results</span></span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  df_permute<span class="ot">&lt;-</span><span class="fu">data.table</span>(<span class="at">id_mother=</span><span class="fu">rep</span>(df_test<span class="sc">$</span>id_mother,<span class="at">times=</span>I),</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>                        <span class="at">iteration=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>I,<span class="at">each=</span><span class="fu">length</span>(df_test<span class="sc">$</span>id_mother),</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">beta=</span><span class="cn">NA</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>   <span class="fu">setorder</span>(df_test, id_mother)</span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J){</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># New data of birth</span></span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>      df_test[, x_dob_new <span class="sc">:</span><span class="er">=</span> x_dob <span class="sc">+</span> <span class="fu">round</span>(<span class="fu">runif</span>(.N, <span class="at">min =</span> <span class="sc">-</span><span class="dv">14</span>, <span class="at">max =</span> <span class="dv">14</span>))]</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign mother groups</span></span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setorder</span>(df_test, id_district, x_dob_new, x_age,x_parity)</span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign groups</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>      df_test[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>      df_test[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>      df_test[, id_mother_group_new <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Recalculate leave one out mean</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>     df_test[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_mother_group_new]</span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>      df_test[, x_gm_lsupply_gs <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Save</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setorder</span>(df, id_mother)</span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>      df_permute<span class="sc">$</span>beta[df_permute<span class="sc">$</span>iteration <span class="sc">==</span> j ] <span class="ot">&lt;-</span> df_test<span class="sc">$</span>x_gm_lsupply_gs</span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb19-41"><a href="#cb19-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-42"><a href="#cb19-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-43"><a href="#cb19-43" aria-hidden="true" tabindex="-1"></a>  df_collapsed <span class="ot">&lt;-</span> df_permute[, .(<span class="at">x_gm_lsupply_gsim14 =</span> <span class="fu">mean</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)), by <span class="ot">=</span> id_mother]</span>
+<span id="cb19-44"><a href="#cb19-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-45"><a href="#cb19-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-46"><a href="#cb19-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now merge on</span></span>
+<span id="cb19-47"><a href="#cb19-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-48"><a href="#cb19-48" aria-hidden="true" tabindex="-1"></a>  df<span class="ot">&lt;-</span><span class="fu">merge</span>(df,df_collapsed,<span class="at">by=</span><span class="st">"id_mother"</span>)</span>
+<span id="cb19-49"><a href="#cb19-49" aria-hidden="true" tabindex="-1"></a>  df[,x_gm_lsupply_grc <span class="sc">:</span><span class="er">=</span>x_gm_lsupply_g<span class="sc">-</span>x_gm_lsupply_gsim14 ]</span>
+<span id="cb19-50"><a href="#cb19-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb19-51"><a href="#cb19-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save estimate</span></span>
+<span id="cb19-52"><a href="#cb19-52" aria-hidden="true" tabindex="-1"></a>    res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_grc<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb19-53"><a href="#cb19-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract coefficient</span></span>
+<span id="cb19-54"><a href="#cb19-54" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_gm_lsupply_grc"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb19-55"><a href="#cb19-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store beta-value in results dataset</span></span>
+<span id="cb19-56"><a href="#cb19-56" aria-hidden="true" tabindex="-1"></a>    df_sim_recent<span class="sc">$</span>beta[i] <span class="ot">&lt;-</span> beta</span>
+<span id="cb19-57"><a href="#cb19-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb19-58"><a href="#cb19-58" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Print</span></span>
+<span id="cb19-59"><a href="#cb19-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb19-60"><a href="#cb19-60" aria-hidden="true" tabindex="-1"></a>         <span class="co">#      cat(paste(i,"\n"))</span></span>
+<span id="cb19-61"><a href="#cb19-61" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb19-62"><a href="#cb19-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
+<span id="cb19-63"><a href="#cb19-63" aria-hidden="true" tabindex="-1"></a>      <span class="co">#         cat("*")</span></span>
+<span id="cb19-64"><a href="#cb19-64" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb19-65"><a href="#cb19-65" aria-hidden="true" tabindex="-1"></a>      df<span class="ot">&lt;-</span>df<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>x_gm_lsupply_gsim14)</span>
+<span id="cb19-66"><a href="#cb19-66" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Let us again create a histogram and compare it to the other histograms</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fig3<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_sim_recent,<span class="fu">aes</span>(<span class="at">x=</span>beta))<span class="sc">+</span><span class="fu">geom_histogram</span>(<span class="at">color=</span><span class="st">"black"</span>,<span class="at">fill=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span><span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(c) recenter w.  dob 14d"</span>)<span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.025</span>,<span class="fl">0.025</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>fig1<span class="sc">+</span>fig2<span class="sc">+</span>fig3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/balance-plot-recenter-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is not as narrow as (b), and worse, it is not centered. Can we do better?</p>
+</section>
+<section id="approach-3-a-more-generous-recentering-based-on-adding-variation-in-date-of-birth" class="level2">
+<h2 class="anchored" data-anchor-id="approach-3-a-more-generous-recentering-based-on-adding-variation-in-date-of-birth">5.4 Approach 3: a more generous recentering based on adding variation in date of birth</h2>
+<p>Let us know try the recentering approach. We could simply recenter by subtracting the pool level leave one out from the mother group leave one out. That should result in the same as above. However, we will know be more explicit about the pool level and instead simulate pools based on the mother groups you could be assigned to, by adding a bit of noise to the date of birth.</p>
+<div class="cell" data-hash="mother_group_DGP_cache/html/recenter-sim-90_d7279add64b3034bfbb1021169d07223">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Dataset for results</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  df_sim_recent<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">i=</span><span class="dv">1</span><span class="sc">:</span>I,<span class="at">beta=</span><span class="cn">NA</span>,<span class="at">type=</span><span class="st">"Raw"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>          </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a> I<span class="ot">=</span><span class="dv">1000</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>I){</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>              </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># calculate random </span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  J<span class="ot">=</span><span class="dv">20</span></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>    df_test<span class="ot">&lt;-</span>df</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Empty data table to store results</span></span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  df_permute<span class="ot">&lt;-</span><span class="fu">data.table</span>(<span class="at">id_mother=</span><span class="fu">rep</span>(df_test<span class="sc">$</span>id_mother,<span class="at">times=</span>I),</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>                        <span class="at">iteration=</span><span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>I,<span class="at">each=</span><span class="fu">length</span>(df_test<span class="sc">$</span>id_mother),</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                        <span class="at">beta=</span><span class="cn">NA</span>)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>                  )</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>   <span class="fu">setorder</span>(df_test, id_mother)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>J){</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># New data of birth</span></span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>      df_test[, x_dob_new <span class="sc">:</span><span class="er">=</span> x_dob <span class="sc">+</span> <span class="fu">round</span>(<span class="fu">runif</span>(.N, <span class="at">min =</span> <span class="sc">-</span><span class="dv">90</span>, <span class="at">max =</span> <span class="dv">90</span>))]</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign mother groups</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setorder</span>(df_test, id_district, x_dob_new, x_age,x_parity)</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Assign groups</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>      df_test[, count <span class="sc">:</span><span class="er">=</span> <span class="dv">1</span><span class="sc">:</span>.N, by <span class="ot">=</span> id_district]</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>      df_test[, group_id <span class="sc">:</span><span class="er">=</span> <span class="fu">floor</span>((count <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">5</span>)]</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>      df_test[, id_mother_group_new <span class="sc">:</span><span class="er">=</span> <span class="fu">paste</span>(id_district, group_id, <span class="at">sep =</span> <span class="st">"_"</span>)]</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Recalculate leave one out mean</span></span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>     df_test[, <span class="st">`</span><span class="at">:=</span><span class="st">`</span>(</span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>        <span class="at">sum_gm=</span><span class="fu">sum</span>(x_gm_lsupply),</span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_group =</span> .N</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>      ), by <span class="ot">=</span> id_mother_group_new]</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>      df_test[, x_gm_lsupply_gs <span class="sc">:</span><span class="er">=</span> (sum_gm <span class="sc">-</span> x_gm_lsupply) <span class="sc">/</span> (n_group <span class="sc">-</span> <span class="dv">1</span>)]</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Save</span></span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>      <span class="fu">setorder</span>(df, id_mother)</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>      df_permute<span class="sc">$</span>beta[df_permute<span class="sc">$</span>iteration <span class="sc">==</span> j ] <span class="ot">&lt;-</span> df_test<span class="sc">$</span>x_gm_lsupply_gs</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>      </span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>  df_collapsed <span class="ot">&lt;-</span> df_permute[, .(<span class="at">x_gm_lsupply_gsim90 =</span> <span class="fu">mean</span>(beta, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)), by <span class="ot">=</span> id_mother]</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  <span class="co"># now merge on</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>  df<span class="ot">&lt;-</span><span class="fu">merge</span>(df,df_collapsed,<span class="at">by=</span><span class="st">"id_mother"</span>)</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>  df[,x_gm_lsupply_grc <span class="sc">:</span><span class="er">=</span>x_gm_lsupply_g<span class="sc">-</span>x_gm_lsupply_gsim90 ]</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Save estimate</span></span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>    res<span class="ot">&lt;-</span><span class="fu">feols</span>(x_gm_lsupply<span class="sc">~</span>x_gm_lsupply_grc<span class="sc">|</span>id_district<span class="sc">+</span>x_age5,<span class="at">data=</span>df,<span class="at">notes=</span><span class="cn">FALSE</span>)</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract coefficient</span></span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>    beta <span class="ot">&lt;-</span> <span class="fu">summary</span>(res)<span class="sc">$</span>coeftable[<span class="st">"x_gm_lsupply_grc"</span>, <span class="st">"Estimate"</span>]</span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Store beta-value in results dataset</span></span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>    df_sim_recent<span class="sc">$</span>beta[i] <span class="ot">&lt;-</span> beta</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>     <span class="co"># Print</span></span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> (i<span class="sc">%%</span><span class="dv">50</span><span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>         <span class="co">#      cat(paste(i,"\n"))</span></span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>{</span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>      <span class="co">#         cat("*")</span></span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>        }</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>      df<span class="ot">&lt;-</span>df<span class="sc">%&gt;%</span><span class="fu">select</span>(<span class="sc">-</span>x_gm_lsupply_gsim90)</span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Let us again create a histogram and compare it to the other histograms</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>fig4<span class="ot">&lt;-</span><span class="fu">ggplot</span>(df_sim_recent,<span class="fu">aes</span>(<span class="at">x=</span>beta))<span class="sc">+</span><span class="fu">geom_histogram</span>(<span class="at">color=</span><span class="st">"black"</span>,<span class="at">fill=</span><span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span><span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>)<span class="sc">+</span><span class="fu">labs</span>(<span class="at">title=</span><span class="st">"(d) recenter w.  dob 90d"</span>)<span class="sc">+</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlim</span>(<span class="sc">-</span><span class="fl">0.025</span>,<span class="fl">0.025</span>)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>(fig1<span class="sc">+</span>fig2)<span class="sc">/</span>(fig3<span class="sc">+</span>fig4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<p><img src="mother_group_DGP_files/figure-html/balance-plot-recenter-90-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>This is not as narrow as (b), and worse, it is not centered. Can we do better?</p>
+</section>
 </section>
 
 </main>
